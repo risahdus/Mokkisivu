@@ -86,15 +86,14 @@ const { title = "Mökkiprojekti" } = Astro.props;
             overflow: hidden;
             padding: 0; /* Otetaan perus-padding pois, jotta suojakerros peittää kaiken */
         }
-
         /* Suojakerros kortin sisälle, jotta teksti erottuu taustakuvasta */
         .kortti-sisalto {
-            background: rgba(255, 255, 255, 0.9); /* Vaalea suojakerros kortin sisälle */
+            /* Muutettu 0.9 -> 0.75 (kuva kuultaa nyt paljon paremmin läpi!) */
+            background: rgba(255, 255, 255, 0.75); 
             padding: 32px;
             width: 100%;
             height: 100%;
         }
-
         /* Ikonin ja otsikon asettelu vierekkäin */
         .otsikko-rivi {
             display: flex;
