@@ -1,5 +1,26 @@
 ---
-// Tähän yläosaan (koodiaitojen väliin) tulee pian se salasanatarkistus!
+// BACKEND: Tämä koodi ajetaan vain Vercelin palvelimella
+let onKirjautunut = false;
+let virheviesti = "";
+
+// Määritetään mökin yhteinen salasana
+const OIKEA_SALASANA = "Mokki2026";
+
+// Tarkistetaan, lähettikö käyttäjä lomakkeen (POST-pyyntö)
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const syotettySalasana = data.get("salasana");
+
+    if (syotettySalasana === OIKEA_SALASANA) {
+      onKirjautunut = true;
+    } else {
+      virheviesti = "Väärä salasana, yritä uudelleen!";
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 ---
 <!DOCTYPE html>
 <html lang="fi">
