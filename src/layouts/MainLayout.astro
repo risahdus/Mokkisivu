@@ -86,6 +86,48 @@ const { title = "Mökkiprojekti" } = Astro.props;
             overflow: hidden;
             padding: 0; /* Otetaan perus-padding pois, jotta suojakerros peittää kaiken */
         }
+        /* Tehdään korteista linkkeinä siistejä */
+        a.laatikko-kuvalla {
+            text-decoration: none; /* Poistaa linkin alleviivauksen */
+            display: block;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Pieni hieno tehoste, kun hiiren vie kortin päälle */
+        a.laatikko-kuvalla:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Uusi keskitysluokka kortin sisällölle */
+        .kortti-sisalto.keskitys {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px; /* Määrittää kortin korkeuden nyt kun tekstiä on vähemmän */
+        }
+
+        /* Korostetaan otsikkoriviä ja tekstiä */
+        .otsikko-rivi {
+            display: flex;
+            align-items: center;
+            gap: 16px; /* Hieman isompi väli logon ja tekstin välille */
+        }
+
+        /* LOGON TYYLIT: Tehdään logosta isompi ja tummempi */
+        .otsikko-rivi i {
+            font-size: 2.2rem; 
+            color: #1a1a1a; /* Erittäin tumma harmaa/musta */
+        }
+
+        /* OTSINKOTEKSTIN TYYLIT: Tehdään tekstistä iso ja paksu */
+        .otsikko-rivi h2 {
+            font-size: 2rem; /* Kasvatetaan kokoa reilusti */
+            font-weight: 800; /* Tehdään tekstistä extra-paksu */
+            color: #1a1a1a; /* Erittäin tumma harmaa/musta */
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5); /* Kevyt vaalea varjo tekstin taakse lisäämään kontrastia */
+        }        
         /* Suojakerros kortin sisälle, jotta teksti erottuu taustakuvasta */
         .kortti-sisalto {
             /* Pudotettu valkoisuus 75 % -> 25 % (kuva näkyy nyt kunnolla!) */

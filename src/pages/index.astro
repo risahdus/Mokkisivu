@@ -1,8 +1,8 @@
 ---
-// Tuodaan yhteinen sivupohja englanninkielisellä nimellä
+// 1. Haetaan yhteinen sivupohja
 import MainLayout from '../layouts/MainLayout.astro';
 
-// BACKEND: Koodimuuttujat ja salasanan tarkistus palvelimella
+// 2. BACKEND: Salasanan tarkistus palvelimella (Pidetään tämä ennallaan)
 let isAuthenticated = false;
 let errorMessage = "";
 const CORRECT_PASSWORD = "Mokki2026";
@@ -37,34 +37,23 @@ if (Astro.request.method === "POST") {
             </form>
         </div>
     ) : (
-        <div class="laatikko laatikko-kuvalla" style="background-image: url('/tools.JPG');">
-            <div class="kortti-sisalto">
+        <a href="/tyolista" class="laatikko laatikko-kuvalla" style="background-image: url('/tools.jpg');">
+            <div class="kortti-sisalto keskitys">
                 <div class="otsikko-rivi">
                     <i class="fa-solid fa-tools"></i> 
                     <h2>Työlista & Tarvikkeet</h2>
                 </div>
-                <ul>
-                    <li>
-                        <span>Terassin laajennus</span>
-                        <span class="status kesken">Tarvikkeet ostamatta</span>
-                    </li>
-                    <li>
-                        <span>Saunan lauteiden vahaus</span>
-                        <span class="status tehty">Tehty & hankittu</span>
-                    </li>
-                </ul>
             </div>
-        </div>
+        </a>
 
-        <div class="laatikko laatikko-kuvalla" style="background-image: url('/guestbook.jpg');">
-            <div class="kortti-sisalto">
+        <a href="/vieraskirja" class="laatikko laatikko-kuvalla" style="background-image: url('/guestbook.jpg');">
+            <div class="kortti-sisalto keskitys">
                 <div class="otsikko-rivi">
                     <i class="fa-solid fa-book-open"></i> 
                     <h2>Vieraskirja</h2>
                 </div>
-                <p>Tähän tulee myöhemmin lomake, johon voi kirjoittaa viestejä.</p>
             </div>
-        </div>
+        </a>
     ) }
 
 </MainLayout>
