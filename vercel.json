@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "**/*.js": {
+      "runtime": "nodejs24.x"
+    },
+    "**/*.mjs": {
+      "runtime": "nodejs24.x"
+    }
+  }
+}
