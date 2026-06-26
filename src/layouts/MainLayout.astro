@@ -1,6 +1,5 @@
 ---
-// Otetaan vastaan sivun otsikko muuttujana (prop)
-const { otsikko = "Mökkisivu" } = Astro.props;
+const { title = "Mökkiprojekti" } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -8,62 +7,155 @@ const { otsikko = "Mökkisivu" } = Astro.props;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{otsikko}</title>
-    <style is:global>
-        /* Tänne siirrettiin kaikki yleiset tyylit */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            background-color: #f2f0eb;
-            color: #2c3e2b;
-            padding: 20px;
-        }
-        .container { max-width: 600px; margin: 40px auto; }
-        h1 { text-align: center; margin-bottom: 30px; color: #1b331e; }
-        .laatikko {
-            background: #ffffff;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        h2 { font-size: 1.3rem; margin-bottom: 15px; color: #1b331e; border-bottom: 2px solid #e5e2da; padding-bottom: 8px; }
-        ul { list-style: none; }
-        li { padding: 10px 0; border-bottom: 1px solid #f5f4f0; display: flex; align-items: center; justify-content: space-between; }
-        li:last-child { border-bottom: none; }
-        .status { font-size: 0.85rem; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
-        .tehty { background-color: #e2f0d9; color: #385723; }
-        .kesken { background-color: #fff2cc; color: #7f6000; }
-        p { color: #555; font-size: 0.95rem; }
+    <title>{title}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        /* Kirjautumisen tyylit */
+    <style is:global>
+        /* MODERNIT CSS-MUUTTUJAT: Helppo muuttaa värejä yhdestä paikasta */
+        :root {
+            --bg-color: #f8f9fa;        /* Raikas, hieman harmahtava tausta */
+            --card-bg: #ffffff;         /* Puhdas valkoinen korteille */
+            --text-main: #212529;       /* Tummanharmaa (pehmeämpi silmille kuin täysmusta) */
+            --text-muted: #6c757d;      /* Harmaa apu- ja seliteteksteille */
+            --primary: #1b331e;         /* Mökin oma metsänvihreä tunnusväri */
+            --primary-hover: #2c5431;   /* Hieman vaaleampi vihreä hover-efekteille */
+            --border-color: #e9ecef;    /* Erittäin hienovaraiset reunaviivat */
+            --radius: 16px;             /* Modernit, pyöristetyt kulmat */
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.04); /* Pehmeä, huomaamaton varjo */
+            
+            /* Statusvärit */
+            --status-done-bg: #d1e7dd;
+            --status-done-text: #0f5132;
+            --status-todo-bg: #fff3cd;
+            --status-todo-text: #664d03;
+        }
+
+        /* Perusasetukset */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 40px 20px;
+        }
+
+        /* Keskelle sijoitettu container */
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Moderni yläotsikko */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        /* Moderni Kortti (Card) */
+        .laatikko {
+            background: var(--card-bg);
+            padding: 32px;
+            margin-bottom: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        /* Pieni nosto-efekti, kun hiiri viedään kortin päälle */
+        .laatikko:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        /* Lista-asettelu dynaamisella Flexboxilla */
+        ul { list-style: none; }
+        li {
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        li:last-child { border-bottom: none; }
+        
+        /* Tekstit */
+        p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Modernit Statustagit */
+        .status {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 30px; /* Täysin pyöreät reunat tageille */
+            font-weight: 500;
+        }
+        .tehty { background-color: var(--status-done-bg); color: var(--status-done-text); }
+        .kesken { background-color: var(--status-todo-bg); color: var(--status-todo-text); }
+
+        /* Moderni Kirjautumislomake ja syötteet */
         .kirjautuminen { text-align: center; }
+        
         input[type="password"] {
             width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border: 2px solid #e5e2da;
-            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 20px 0 12px 0;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
         }
+        /* Kun laatikkoon klikkaa, reuna muuttuu vihreäksi */
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
         button {
-            background-color: #1b331e;
+            background-color: var(--primary);
             color: white;
-            padding: 12px 24px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
+            font-weight: 500;
+            font-family: inherit;
             cursor: pointer;
             width: 100%;
+            transition: background-color 0.2s ease;
         }
-        button:hover { background-color: #2c3e2b; }
-        .virhe { color: #b33a3a; margin-bottom: 15px; font-weight: bold; }
+        button:hover { background-color: var(--primary-hover); }
+        
+        .virhe {
+            color: #dc3545;
+            margin-bottom: 16px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>HONKANIEMI</h1>
+        <header>
+            <h1>HONKANIEMI</h1>
+        </header>
         
         <slot /> 
         
