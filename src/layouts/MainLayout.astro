@@ -12,6 +12,7 @@ const { title = "Mökkiprojekti" } = Astro.props;
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style is:global>
         /* MODERNIT CSS-MUUTTUJAT: Helppo muuttaa värejä yhdestä paikasta */
@@ -77,6 +78,39 @@ const { title = "Mökkiprojekti" } = Astro.props;
             border: 1px solid var(--border-color);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+        /* Erityiset tyylit korteille, joissa on oma taustakuva */
+        .laatikko-kuvalla {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            padding: 0; /* Otetaan perus-padding pois, jotta suojakerros peittää kaiken */
+        }
+
+        /* Suojakerros kortin sisälle, jotta teksti erottuu taustakuvasta */
+        .kortti-sisalto {
+            background: rgba(255, 255, 255, 0.9); /* Vaalea suojakerros kortin sisälle */
+            padding: 32px;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Ikonin ja otsikon asettelu vierekkäin */
+        .otsikko-rivi {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Väli logon ja tekstin välillä */
+            margin-bottom: 20px;
+        }
+
+        .otsikko-rivi i {
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .otsikko-rivi h2 {
+            margin-bottom: 0; /* Poistetaan vanha alapuolinen marginaali */
+        }        
         /* Pieni nosto-efekti, kun hiiri viedään kortin päälle */
         .laatikko:hover {
             transform: translateY(-2px);

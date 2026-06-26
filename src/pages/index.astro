@@ -2,7 +2,7 @@
 // Tuodaan yhteinen sivupohja englanninkielisellä nimellä
 import MainLayout from '../layouts/MainLayout.astro';
 
-// BACKEND: Koodimuuttujat englanniksi
+// BACKEND: Koodimuuttujat ja salasanan tarkistus palvelimella
 let isAuthenticated = false;
 let errorMessage = "";
 const CORRECT_PASSWORD = "Mokki2026";
@@ -23,10 +23,9 @@ if (Astro.request.method === "POST") {
 }
 ---
 
-<MainLayout title="HONKANIEMI - Etusivu">
+<MainLayout title="Mökkiprojekti - Etusivu">
     
     { !isAuthenticated ? (
-        <!-- VIEW A: Kirjautumislomake suomeksi -->
         <div class="laatikko kirjautuminen">
             <h2>Sivu on suojattu</h2>
             <p>Syötä mökin salasana nähdäksesi remonttilistan.</p>
@@ -38,24 +37,33 @@ if (Astro.request.method === "POST") {
             </form>
         </div>
     ) : (
-        <!-- VIEW B: Varsinainen sisältö suomeksi -->
-        <div class="laatikko">
-            <h2>Työlista & Tarvikkeet</h2>
-            <ul>
-                <li>
-                    <span>Terassin laajennus</span>
-                    <span class="status kesken">Tarvikkeet ostamatta</span>
-                </li>
-                <li>
-                    <span>Saunan lauteiden vahaus</span>
-                    <span class="status tehty">Tehty & hankittu</span>
-                </li>
-            </ul>
+        <div class="laatikko laatikko-kuvalla" style="background-image: url('/tools.jpg');">
+            <div class="kortti-sisalto">
+                <div class="otsikko-rivi">
+                    <i class="fa-solid fa-tools"></i> 
+                    <h2>Työlista & Tarvikkeet</h2>
+                </div>
+                <ul>
+                    <li>
+                        <span>Terassin laajennus</span>
+                        <span class="status kesken">Tarvikkeet ostamatta</span>
+                    </li>
+                    <li>
+                        <span>Saunan lauteiden vahaus</span>
+                        <span class="status tehty">Tehty & hankittu</span>
+                    </li>
+                </ul>
+            </div>
         </div>
 
-        <div class="laatikko">
-            <h2>Vieraskirja</h2>
-            <p>Tähän tulee myöhemmin lomake, johon voi kirjoittaa viestejä.</p>
+        <div class="laatikko laatikko-kuvalla" style="background-image: url('/guestbook.jpg');">
+            <div class="kortti-sisalto">
+                <div class="otsikko-rivi">
+                    <i class="fa-solid fa-book-open"></i> 
+                    <h2>Vieraskirja</h2>
+                </div>
+                <p>Tähän tulee myöhemmin lomake, johon voi kirjoittaa viestejä.</p>
+            </div>
         </div>
     ) }
 
