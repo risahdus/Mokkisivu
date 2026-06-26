@@ -1,21 +1,21 @@
 ---
-// BACKEND: Tämä koodi ajetaan vain Vercelin palvelimella
-let onKirjautunut = false;
-let virheviesti = "";
+// Tuodaan yhteinen sivupohja uudella englanninkielisellä nimellä
+import MainLayout from '../layouts/MainLayout.astro';
 
-// Määritetään mökin yhteinen salasana
-const OIKEA_SALASANA = "Mokki2026";
+// BACKEND: Muuttujat englanniksi
+let isAuthenticated = false;
+let errorMessage = "";
+const CORRECT_PASSWORD = "Mokki2026";
 
-// Tarkistetaan, lähettikö käyttäjä lomakkeen (POST-pyyntö)
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
-    const syotettySalasana = data.get("salasana");
+    const enteredPassword = data.get("password");
 
-    if (syotettySalasana === OIKEA_SALASANA) {
-      onKirjautunut = true;
+    if (enteredPassword === CORRECT_PASSWORD) {
+      isAuthenticated = true;
     } else {
-      virheviesti = "Väärä salasana, yritä uudelleen!";
+      errorMessage = "Wrong password, try again!";
     }
   } catch (error) {
     console.error(error);
@@ -23,101 +23,40 @@ if (Astro.request.method === "POST") {
 }
 ---
 
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mökkiprojekti 2026</title>
-    <style>
-        /* Perus- ja ulkoasutyylit molemmille näkymille */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            background-color: #f2f0eb;
-            color: #2c3e2b;
-            padding: 20px;
-        }
-        .container { max-width: 600px; margin: 40px auto; }
-        h1 { text-align: center; margin-bottom: 30px; color: #1b331e; }
-        .laatikko {
-            background: #ffffff;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        h2 { font-size: 1.3rem; margin-bottom: 15px; color: #1b331e; border-bottom: 2px solid #e5e2da; padding-bottom: 8px; }
-        ul { list-style: none; }
-        li { padding: 10px 0; border-bottom: 1px solid #f5f4f0; display: flex; align-items: center; justify-content: space-between; }
-        li:last-child { border-bottom: none; }
-        .status { font-size: 0.85rem; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
-        .tehty { background-color: #e2f0d9; color: #385723; }
-        .kesken { background-color: #fff2cc; color: #7f6000; }
-        p { color: #555; font-size: 0.95rem; }
+<MainLayout title="Cottage Project - Home">
+    
+    { !isAuthenticated ? (
+        <!-- VIEW A: Login Form -->
+        <div class="laatikko kirjautuminen">
+            <h2>Page is protected</h2>
+            <p>Enter the password to see the renovation list.</p>
+            
+            <form method="POST">
+                <input type="password" name="password" placeholder="Password" required />
+                { errorMessage && <p class="virhe">{errorMessage}</p> }
+                <button type="submit">Log In</button>
+            </form>
+        </div>
+    ) : (
+        <!-- VIEW B: Dynamic Content -->
+        <div class="laatikko">
+            <h2>To-Do List & Supplies</h2>
+            <ul>
+                <li>
+                    <span>Terassin laajennus</span>
+                    <span class="status kesken">Tarvikkeet ostamatta</span>
+                </li>
+                <li>
+                    <span>Saunan lauteiden vahaus</span>
+                    <span class="status tehty">Tehty & hankittu</span>
+                </li>
+            </ul>
+        </div>
 
-        /* Kirjautumislomakkeen tyylit */
-        .kirjautuminen { text-align: center; }
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border: 2px solid #e5e2da;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        button {
-            background-color: #1b331e;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            width: 100%;
-        }
-        button:hover { background-color: #2c3e2b; }
-        .virhe { color: #b33a3a; margin-bottom: 15px; font-weight: bold; }
-    </style>
-</head>
-<body>
+        <div class="laatikko">
+            <h2>Guestbook</h2>
+            <p>Tähän tulee myöhemmin lomake, johon voi kirjoittaa viestejä.</p>
+        </div>
+    ) }
 
-    <div class="container">
-        <h1>HONKANIEMI</h1>
-
-        { !onKirjautunut ? (
-            <div class="laatikko kirjautuminen">
-                <h2>Sivu on suojattu</h2>
-                <p>Syötä mökin salasana nähdäksesi remonttilistan.</p>
-                
-                <form method="POST">
-                    <input type="password" name="salasana" placeholder="Salasana" required />
-                    { virheviesti && <p class="virhe">{virheviesti}</p> }
-                    <button type="submit">Kirjaudu sisään</button>
-                </form>
-            </div>
-        ) : (
-            <div class="laatikko">
-                <h2>Työlista & Tarvikkeet</h2>
-                <ul>
-                    <li>
-                        <span>Terassin laajennus</span>
-                        <span class="status kesken">Tarvikkeet ostamatta</span>
-                    </li>
-                    <li>
-                        <span>Saunan lauteiden vahaus</span>
-                        <span class="status tehty">Tehty & hankittu</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="laatikko">
-                <h2>Vieraskirja</h2>
-                <p>Tähän tulee myöhemmin lomake, johon voi kirjoittaa viestejä.</p>
-            </div>
-        ) }
-    </div>
-
-</body>
-</html>
+</MainLayout>
