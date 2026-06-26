@@ -38,12 +38,17 @@ const { title = "Mökkiprojekti" } = Astro.props;
         
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg-color);
             color: var(--text-main);
             line-height: 1.5;
             padding: 40px 20px;
-        }
 
+            /* TÄSTÄ ALKAA TAUSTAKUVAN MÄÄRITYS */
+            background-image: linear-gradient(rgba(248, 249, 250, 0.85), rgba(248, 249, 250, 0.85)), url('/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
         /* Keskelle sijoitettu container */
         .container {
             max-width: 650px;
