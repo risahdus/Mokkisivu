@@ -22,135 +22,102 @@ if (Astro.request.method === "POST") {
   }
 }
 ---
+
 <!DOCTYPE html>
 <html lang="fi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meidän Mökki</title>
+    <title>Mökkiprojekti 2026</title>
     <style>
-        /* Moderni CSS-nollaus ja perusasetukset */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* Perus- ja ulkoasutyylit molemmille näkymille */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
             background-color: #f2f0eb;
-            /* Pehmeä, hiekan-/puunvaalea tausta */
             color: #2c3e2b;
-            /* Tumma metsänvihreä tekstille mustan sijaan */
             padding: 20px;
         }
-
-        /* Keskitetään sisältö ja määrätään maksimileveys */
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-        }
-
-        /* Pääotsikko */
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            color: #1b331e;
-            /* Syvä havunvihreä */
-        }
-
-        /* Tyylikkäät laatikot sisällölle */
+        .container { max-width: 600px; margin: 40px auto; }
+        h1 { text-align: center; margin-bottom: 30px; color: #1b331e; }
         .laatikko {
             background: #ffffff;
             padding: 25px;
             margin-bottom: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            /* Kevyt varjo tuomaan syvyyttä */
         }
+        h2 { font-size: 1.3rem; margin-bottom: 15px; color: #1b331e; border-bottom: 2px solid #e5e2da; padding-bottom: 8px; }
+        ul { list-style: none; }
+        li { padding: 10px 0; border-bottom: 1px solid #f5f4f0; display: flex; align-items: center; justify-content: space-between; }
+        li:last-child { border-bottom: none; }
+        .status { font-size: 0.85rem; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+        .tehty { background-color: #e2f0d9; color: #385723; }
+        .kesken { background-color: #fff2cc; color: #7f6000; }
+        p { color: #555; font-size: 0.95rem; }
 
-        h2 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: #1b331e;
-            border-bottom: 2px solid #e5e2da;
-            padding-bottom: 8px;
+        /* Kirjautumislomakkeen tyylit */
+        .kirjautuminen { text-align: center; }
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #e5e2da;
+            border-radius: 8px;
+            font-size: 1rem;
         }
-
-        /* Remonttilistan tyylittely */
-        ul {
-            list-style: none;
-            /* Poistetaan oletuspallurat */
+        button {
+            background-color: #1b331e;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
         }
-
-        li {
-            padding: 10px 0;
-            border-bottom: 1px solid #f5f4f0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            /* Vie tekstin vasemmalle ja statuksen oikealle */
-        }
-
-        li:last-child {
-            border-bottom: none;
-        }
-
-        /* Pienet status-tagit listaan */
-        .status {
-            font-size: 0.85rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-
-        .tehty {
-            background-color: #e2f0d9;
-            color: #385723;
-        }
-
-        .kesken {
-            background-color: #fff2cc;
-            color: #7f6000;
-        }
-
-        /* Tekstikappaleet */
-        p {
-            color: #555;
-            font-size: 0.95rem;
-        }
+        button:hover { background-color: #2c3e2b; }
+        .virhe { color: #b33a3a; margin-bottom: 15px; font-weight: bold; }
     </style>
 </head>
-
 <body>
 
     <div class="container">
-        <h1>HONKANIEMI</h1>
+        <h1>Mökkiprojekti 2026</h1>
 
-        <div class="laatikko">
-            <h2>Työlista & Tarvikkeet</h2>
-            <ul>
-                <li>
-                    <span>Terassin laajennus</span>
-                    <span class="status kesken">Tarvikkeet ostamatta</span>
-                </li>
-                <li>
-                    <span>Terkkuja Ellille Saunan lauteilta</span>
-                    <span class="status tehty">Tehty & hankittu</span>
-                </li>
-            </ul>
-        </div>
+        { !onKirjautunut ? (
+            <div class="laatikko kirjautuminen">
+                <h2>Sivu on suojattu</h2>
+                <p>Syötä mökin salasana nähdäksesi remonttilistan.</p>
+                
+                <form method="POST">
+                    <input type="password" name="salasana" placeholder="Salasana" required />
+                    { virheviesti && <p class="virhe">{virheviesti}</p> }
+                    <button type="submit">Kirjaudu sisään</button>
+                </form>
+            </div>
+        ) : (
+            <div class="laatikko">
+                <h2>Työlista & Tarvikkeet</h2>
+                <ul>
+                    <li>
+                        <span>Terassin laajennus</span>
+                        <span class="status kesken">Tarvikkeet ostamatta</span>
+                    </li>
+                    <li>
+                        <span>Saunan lauteiden vahaus</span>
+                        <span class="status tehty">Tehty & hankittu</span>
+                    </li>
+                </ul>
+            </div>
 
-        <div class="laatikko">
-            <h2>Vieraskirja</h2>
-            <p>Tähän tulee myöhemmin lomake, johon voi kirjoittaa viestejä.</p>
-        </div>
+            <div class="laatikko">
+                <h2>Vieraskirja</h2>
+                <p>Tähän tulee myöhemmin lomake, johon voi kirjoittaa viestejä.</p>
+            </div>
+        ) }
     </div>
 
 </body>
-
 </html>
