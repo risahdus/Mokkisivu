@@ -6,18 +6,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meidän Mökki</title>
     <style>
-        /* Tähän tulee myöhemmin sivun ulkoasu (CSS) */
-        body {
-            font-family: sans-serif;
-            margin: 40px;
-            background: #f4f4f4;
+        /* Moderni CSS-nollaus ja perusasetukset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .laatikko {
-            background: white;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f2f0eb;
+            /* Pehmeä, hiekan-/puunvaalea tausta */
+            color: #2c3e2b;
+            /* Tumma metsänvihreä tekstille mustan sijaan */
             padding: 20px;
+        }
+
+        /* Keskitetään sisältö ja määrätään maksimileveys */
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        /* Pääotsikko */
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1b331e;
+            /* Syvä havunvihreä */
+        }
+
+        /* Tyylikkäät laatikot sisällölle */
+        .laatikko {
+            background: #ffffff;
+            padding: 25px;
             margin-bottom: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            /* Kevyt varjo tuomaan syvyyttä */
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #1b331e;
+            border-bottom: 2px solid #e5e2da;
+            padding-bottom: 8px;
+        }
+
+        /* Remonttilistan tyylittely */
+        ul {
+            list-style: none;
+            /* Poistetaan oletuspallurat */
+        }
+
+        li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f4f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            /* Vie tekstin vasemmalle ja statuksen oikealle */
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        /* Pienet status-tagit listaan */
+        .status {
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .tehty {
+            background-color: #e2f0d9;
+            color: #385723;
+        }
+
+        .kesken {
+            background-color: #fff2cc;
+            color: #7f6000;
+        }
+
+        /* Tekstikappaleet */
+        p {
+            color: #555;
+            font-size: 0.95rem;
         }
     </style>
 </head>
