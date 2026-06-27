@@ -1,0 +1,132 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Valmiit projektit">
+    <div class="sivu-säiliö">
+        <h2><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Valmiit projektit</h2>
+        <p>Tältä sivulta löydät kaikki mökillä valmiiksi saadut urakat.</p>
+
+        <div id="lataus" class="keskitys">Ladataan projekteja...</div>
+        <div id="projekti-lista" class="lista-ruudukko"></div>
+
+        <div style="margin-top: 30px;">
+            <a href="/works" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon</a>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    import { supabase } from '../../lib/supabase';
+
+    const listaElementti = document.getElementById('projekti-lista');
+    const latausElementti = document.getElementById('lataus');
+
+    const haeValmiitProjektit = async () => {
+        // Haetaan Supabasesta vain ne rivit, joiden status on 'valmis'
+        const { data: projektit, error } = await supabase
+            .from('projektit')
+            .select('*')
+            .eq('status', 'valmis')
+            .order('luotu_at', { ascending: false });
+
+        latausElementti.style.display = 'none';
+
+        if (error) {
+            listaElementti.innerHTML = `<p style="color: red;">Virhe haettaessa tietoja: ${error.message}</p>`;
+            return;
+        }
+
+        if (!projektit || projektit.length === 0) {
+            listaElementti.innerHTML = '<p>Ei vielä valmiita projekteja arkistossa.</p>';
+            return;
+        }
+
+        // Rakennetaan lista haetuista projekteista
+        projektit.forEach(projekti => {
+            const kortti = document.createElement('a');
+            kortti.href = `/projekti/${projekti.id}`; // Tämä vie projektin omalle dynaamiselle sivulle!
+            kortti.className = 'laatikko projekti-rivi';
+            kortti.innerHTML = `
+                <div class="projekti-info">
+                    <h3>${projekti.nimi}</h3>
+                    <p class="kuvaus-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
+                    <div class="metatiedot">
+                        <span><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei merkitty'}</span>
+                        <span><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
+                    </div>
+                </div>
+                <div class="nuoli"><i class="fa-solid fa-chevron-right"></i></div>
+            `;
+            listaElementti.appendChild(kortti);
+        });
+    };
+
+    // Käynnistetään haku lennosta
+    haeValmiitProjektit();
+</script>
+
+<style>
+    .sivu-säiliö {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    h2 {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    .lista-ruudukko {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 20px;
+    }
+    /* Tehdään listoista nättejä klikattavia rivejä tummalla teksillä */
+    .projekti-rivi {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none;
+        color: #333;
+        padding: 20px;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .projekti-rivi:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-color: #10b981;
+    }
+    .projekti-info h3 {
+        margin: 0 0 6px 0;
+        font-size: 1.25rem;
+        color: #1a1a1a;
+    }
+    .kuvaus-teksti {
+        font-size: 0.95rem;
+        color: #666;
+        margin: 0 0 12px 0;
+    }
+    .metatiedot {
+        display: flex;
+        gap: 16px;
+        font-size: 0.85rem;
+        color: #888;
+    }
+    .nuoli {
+        color: #ccc;
+        font-size: 1.2rem;
+    }
+    .paluu-linkki {
+        display: inline-block;
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 8px 16px;
+        background: #f0f0f0;
+        border-radius: 6px;
+    }
+    .paluu-linkki:hover { background: #e0e0e0; }
+</style>
