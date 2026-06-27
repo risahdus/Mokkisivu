@@ -23,7 +23,6 @@ import MainLayout from '../../layouts/MainLayout.astro';
     const latausElementti = document.getElementById('lataus');
 
     const haeAvoimetProjektit = async () => {
-        // Haetaan projektit, joiden status EI OLE 'valmis' (eli ovat joko 'avoin' tai 'kesken')
         const { data: projektit, error } = await supabase
             .from('projektit')
             .select('*')
@@ -42,24 +41,36 @@ import MainLayout from '../../layouts/MainLayout.astro';
             return;
         }
 
-        // Rakennetaan lista haetuista projekteista
         projektit.forEach(projekti => {
             const kortti = document.createElement('a');
-            kortti.href = `/projects/${projekti.id}`; // Vie projektin omalle dynaamiselle sivulle
+            kortti.href = `/projects/${projekti.id}`;
             kortti.className = 'laatikko projekti-rivi';
             
-            // Tehdään status-tagista eri värinen riippuen siitä onko se avoin vai kesken
             const onKesken = projekti.status === 'kesken';
             const statusTeksti = onKesken ? 'Kesken' : 'Avoin';
             const statusLuokka = onKesken ? 'tagi-kesken' : 'tagi-avoin';
 
+            // Rakennetaan tarvike-osio vain jos tarvikkeita on syötetty
+            let tarvikkeetHtml = '';
+            if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
+                tarvikkeetHtml = `
+                    <div class="tarvike-laatikko">
+                        <strong><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet:</strong>
+                        <p>${projekti.tarvikkeet}</p>
+                    </div>
+                `;
+            }
+
             kortti.innerHTML = `
-                <div class="projekti-info">
+                <div class="projekti-info" style="width: 100%;">
                     <div class="otsikko-rivi-pieni">
                         <h3>${projekti.nimi}</h3>
                         <span class="status-tagi ${statusLuokka}">${statusTeksti}</span>
                     </div>
                     <p class="kuvaus-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
+                    
+                    ${tarvikkeetHtml}
+                    
                     <div class="metatiedot">
                         <span><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
                         <span><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
@@ -71,7 +82,6 @@ import MainLayout from '../../layouts/MainLayout.astro';
         });
     };
 
-    // Käynnistetään haku lennosta
     haeAvoimetProjektit();
 </script>
 
@@ -121,7 +131,6 @@ import MainLayout from '../../layouts/MainLayout.astro';
         color: #1a1a1a;
     }
 
-    /* Status-tagien tyylit */
     .status-tagi {
         font-size: 0.75rem;
         font-weight: 700;
@@ -145,6 +154,27 @@ import MainLayout from '../../layouts/MainLayout.astro';
         color: #666;
         margin: 0 0 12px 0;
     }
+
+    /* Uusi tyyli tarvikelaatikolle */
+    .tarvike-laatikko {
+        background: #f9fafb;
+        border-left: 3px solid #d1d5db;
+        padding: 10px 14px;
+        margin-bottom: 14px;
+        border-radius: 0 6px 6px 0;
+        font-size: 0.9rem;
+    }
+    .tarvike-laatikko strong {
+        color: #4b5563;
+        display: block;
+        margin-bottom: 4px;
+    }
+    .tarvike-laatikko p {
+        margin: 0;
+        color: #374151;
+        white-space: pre-line; /* Säilyttää rivivaihdot jos listassa on monta tarviketta */
+    }
+
     .metatiedot {
         display: flex;
         gap: 16px;
@@ -154,6 +184,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
     .nuoli {
         color: #ccc;
         font-size: 1.2rem;
+        padding-left: 10px;
     }
     .paluu-linkki {
         display: inline-block;
