@@ -1,53 +1,23 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import { supabase } from '../lib/supabase';
-
-// BACKEND: Kirjautumisen käsittely Supabasella
-let isAuthenticated = false;
-let errorMessage = "";
-
-if (Astro.request.method === "POST") {
-  try {
-    const data = await Astro.request.formData();
-    const email = data.get("email");
-    const password = data.get("password");
-
-    // Pyydetään Supabasea tarkistamaan tunnus ja salasana
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-
-    if (error) {
-      console.error("Supabase Auth virhe:", error.message); // TÄMÄ RIVI TULOSTAA TARKAN SYYN LOKIIN
-      errorMessage = "Väärä tunnus tai salasana! (Syy: " + error.message + ")"; // Näytetään syy myös ruudulla
-    } else if (authData.user) {
-      isAuthenticated = true;
-    }  
-  } catch (error) {
-    console.error(error);
-    errorMessage = "Yhteysvirhe, yritä uudelleen.";
-  }
-}
 ---
 
-<MainLayout title="Mökkiprojekti - Etusivu">
+<MainLayout title="HONKANIEMI - Etusivu">
     
-    { !isAuthenticated ? (
-        <div class="laatikko kirjautuminen">
-            <h2>Sivu on suojattu</h2>
-            <p>Syötä mökin yhteinen tunnus nähdäksesi sisällön.</p>
+    <div id="kirjautumis-laatikko" class="laatikko kirjautuminen">
+        <h2>Sivu on suojattu</h2>
+        <p>Syötä mökin yhteinen tunnus nähdäksesi sisällön.</p>
+        
+        <form id="kirjautumis-lomake">
+            <input type="email" id="email" placeholder="Sähköposti (esim. honkaniemi@kilpi.fi)" required style="margin-bottom: 12px; width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;" />
+            <input type="password" id="password" placeholder="Salasana" required style="margin-bottom: 12px; width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;" />
             
-            <form method="POST">
-                <input type="email" name="email" placeholder="Sähköposti (esim. mokki@meidanperhe.fi)" required style="margin-bottom: 12px; width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;" />
-                
-                <input type="password" name="password" placeholder="Salasana" required style="margin-bottom: 12px; width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;" />
-                
-                { errorMessage && <p class="virhe" style="color: red; margin-bottom: 12px;">{errorMessage}</p> }
-                <button type="submit">Kirjaudu sisään</button>
-            </form>
-        </div>
-    ) : (
+            <p id="virhe-viesti" style="color: red; margin-bottom: 12px; display: none;"></p>
+            <button type="submit">Kirjaudu sisään</button>
+        </form>
+    </div>
+
+    <div id="kortti-laatikko" style="display: none;">
         <a href="/works" class="laatikko laatikko-kuvalla" style="background-image: url('/tools.jpg');">
             <div class="kortti-sisalto keskitys">
                 <div class="otsikko-rivi">
@@ -65,6 +35,48 @@ if (Astro.request.method === "POST") {
                 </div>
             </div>
         </a>
-    ) }
+    </div>
 
 </MainLayout>
+
+<script>
+    import { supabase } from '../lib/supabase';
+
+    const lomake = document.getElementById('kirjautumis-lomake');
+    const virheElementti = document.getElementById('virhe-viesti');
+    const kirjautumisNakyma = document.getElementById('kirjautumis-laatikko');
+    const korttiNakyma = document.getElementById('kortti-laatikko');
+
+    // Jos käyttäjä on jo aiemmin kirjautunut, näytetään kortit heti
+    const tarkistaIstunto = async () => {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session) {
+            kirjautumisNakyma.style.display = 'none';
+            korttiNakyma.style.display = 'block';
+        }
+    };
+    tarkistaIstunto();
+
+    lomake.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        virheElementti.style.display = 'none';
+
+        const email = (document.getElementById('email') as HTMLInputElement).value;
+        const password = (document.getElementById('password') as HTMLInputElement).value;
+
+        // Tehdään haku suoraan selaimesta käsin
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (error) {
+            virheElementti.innerText = "Virhe: " + error.message;
+            virheElementti.style.display = 'block';
+        } else if (data.user) {
+            // Kirjautuminen onnistui! Piilotetaan lomake ja näytetään kortit
+            kirjautumisNakyma.style.display = 'none';
+            korttiNakyma.style.display = 'block';
+        }
+    });
+</script>
