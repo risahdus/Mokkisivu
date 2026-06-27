@@ -18,6 +18,24 @@ import MainLayout from '../layouts/MainLayout.astro';
     </div>
 
     <div id="kortti-laatikko" style="display: none;">
+
+        <!-- SÄÄKORTTI (UUSI) -->
+        <div class="laatikko saa-laatikko">
+            <div class="saa-otsikko">
+                <h3><i class="fa-solid fa-cloud-sun"></i> Sää Vaajasalossa</h3>
+                <span id="saa-aika">Päivitetään...</span>
+            </div>
+            <div class="saa-sisalto">
+                <div class="saa-paaluku">
+                    <span id="saa-lampotila">--</span><span class="yksikko">°C</span>
+                </div>
+                <div class="saa-info">
+                    <p id="saa-kuvaus">Ladataan säätilaa...</p>
+                    <p><i class="fa-solid fa-wind"></i> Tuuli: <span id="saa-tuuli">--</span> m/s</p>
+                </div>
+            </div>
+        </div>
+
         <a href="/works" class="laatikko laatikko-kuvalla" style="background-image: url('/tools.jpg');">
             <div class="kortti-sisalto keskitys">
                 <div class="otsikko-rivi">
@@ -31,10 +49,11 @@ import MainLayout from '../layouts/MainLayout.astro';
             <div class="kortti-sisalto keskitys">
                 <div class="otsikko-rivi">
                     <i class="fa-solid fa-book-open"></i> 
-                    <h2>Vieraskirja</h2>
+                    <h2>Mökkikirja & Vieraskirja</h2>
                 </div>
             </div>
         </a>
+        
     </div>
 
 </MainLayout>
@@ -84,4 +103,45 @@ import MainLayout from '../layouts/MainLayout.astro';
             korttiNakyma.style.display = 'block';
         }
     });
+
+    // --- SÄÄNHAKU VAAJASALO ---
+    const haeSaa = async () => {
+        try {
+            // Vaajasalon Lauharannantien koordinaatit
+            const lat = 62.903;
+            const lon = 27.845;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=ms&timezone=Europe%2FHelsinki`;
+            
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            if (data && data.current) {
+                const temp = Math.round(data.current.temperature_2m);
+                const tuuli = Math.round(data.current.wind_speed_10m);
+                const koodi = data.current.weather_code;
+                
+                document.getElementById('saa-lampotila').innerText = (temp > 0 ? '+' : '') + temp;
+                document.getElementById('saa-tuuli').innerText = tuuli.toString();
+                
+                // Selkokieliset sääkuvaukset WMO-koodien mukaan
+                let kuvaus = "Selkeää";
+                if (koodi >= 1 && koodi <= 3) kuvaus = "Puolipilvistä";
+                else if (koodi >= 45 && koodi <= 48) kuvaus = "Sumuista";
+                else if (koodi >= 51 && koodi <= 67) kuvaus = "Vesisadetta";
+                else if (koodi >= 71 && koodi <= 77) kuvaus = "Lumisadetta";
+                else if (koodi >= 80 && koodi <= 82) kuvaus = "Kuurosadetta";
+                else if (koodi >= 95) kuvaus = "Ukkosta";
+                
+                document.getElementById('saa-kuvaus').innerText = kuvaus;
+                document.getElementById('saa-aika').innerText = "Nyt";
+            }
+        } catch (e) {
+            document.getElementById('saa-kuvaus').innerText = "Säätilaa ei saatu ladattua";
+        }
+    };
+
+    // Käynnistetään säänhaku jos ollaan jo sisällä tai kutsutaan sitä onnistuneen loginin jälkeen
+    haeSaa();
+
+
 </script>
