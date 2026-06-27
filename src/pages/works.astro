@@ -2,15 +2,104 @@
 import MainLayout from '../layouts/MainLayout.astro';
 ---
 
-<MainLayout title="Työlista & Tarvikkeet">
+<MainLayout title="Työlista & Projektit">
     
-    <div class="laatikko">
-        <h2><i class="fa-solid fa-tools"></i> Työlista & Tarvikkeet</h2>
-        <p>Tervetuloa työlistalle! Tänne listataan kaikki mökin remonttipuuhat.</p>
-        
-        <a href="#" onclick="history.back(); return false;" style="display: inline-block; margin-top: 20px; color: var(--primary); text-decoration: none;">
-            <i class="fa-solid fa-arrow-left"></i> Takaisin etusivulle
-        </a>
+    <div class="projektit-otsikko">
+        <h2><i class="fa-solid fa-tools"></i> Työlista & Projektit</h2>
+        <p>Hallitse mökin remontteja ja tarvikelistoja.</p>
     </div>
 
+    <div class="kortti-ruudukko">
+        
+        <a href="/projekti/uusi" class="laatikko valikko-kortti uusi-projekti">
+            <div class="kortti-kuvake"><i class="fa-solid fa-circle-plus"></i></div>
+            <h3>Lisää uusi projekti</h3>
+            <p>Aloita uusi remontti tai kirjaa ylös tarvikehanke.</p>
+        </a>
+
+        <a href="/projekti/avoimet" class="laatikko valikko-kortti avoimet-projektit">
+            <div class="kortti-kuvake"><i class="fa-solid fa-hourglass-half"></i></div>
+            <h3>Avoimet projektit</h3>
+            <p>Katso listaa kesken olevista ja odottavista töistä.</p>
+        </a>
+
+        <a href="/projekti/valmiit" class="laatikko valikko-kortti valmiit-projektit">
+            <div class="kortti-kuvake"><i class="fa-solid fa-circle-check"></i></div>
+            <h3>Valmiit projektit</h3>
+            <p>Arkisto tehdyistä töistä ja toteutuneista kustannuksista.</p>
+        </a>
+
+    </div>
+
+    <a href="#" onclick="history.back(); return false;" class="paluu-linkki">
+        <i class="fa-solid fa-arrow-left"></i> Takaisin etusivulle
+    </a>
+
 </MainLayout>
+
+<style>
+    .projektit-otsikko {
+        margin-bottom: 32px;
+        text-align: center;
+    }
+    .projektit-otsikko h2 {
+        font-size: 2.2rem;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+    }
+    
+    /* Ruudukko korteille */
+    .kortti-ruudukko {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    /* Yksittäisen valikkokortin tyylit */
+    .valikko-kortti {
+        text-decoration: none;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 2px solid transparent;
+    }
+    .valikko-kortti:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    /* Väritehosteet eri korteille */
+    .uusi-projekti:hover { border-color: #3b82f6; }
+    .avoimet-projektit:hover { border-color: #f59e0b; }
+    .valmiit-projektit:hover { border-color: #10b981; }
+
+    .kortti-kuvake {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+    }
+    .uusi-projekti .kortti-kuvake { color: #3b82f6; }
+    .avoimet-projektit .kortti-kuvake { color: #f59e0b; }
+    .valmiit-projektit .kortti-kuvake { color: #10b981; }
+
+    .valikko-kortti h3 {
+        font-size: 1.3rem;
+        margin: 0 0 8px 0;
+        font-weight: 700;
+    }
+    .valikko-kortti p {
+        font-size: 0.95rem;
+        color: #666;
+        margin: 0;
+    }
+
+    .paluu-linkki {
+        display: inline-block;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
