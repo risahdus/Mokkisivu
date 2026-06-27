@@ -19,10 +19,11 @@ if (Astro.request.method === "POST") {
     });
 
     if (error) {
-      errorMessage = "Väärä tunnus tai salasana!";
+      console.error("Supabase Auth virhe:", error.message); // TÄMÄ RIVI TULOSTAA TARKAN SYYN LOKIIN
+      errorMessage = "Väärä tunnus tai salasana! (Syy: " + error.message + ")"; // Näytetään syy myös ruudulla
     } else if (authData.user) {
       isAuthenticated = true;
-    }
+    }  
   } catch (error) {
     console.error(error);
     errorMessage = "Yhteysvirhe, yritä uudelleen.";
