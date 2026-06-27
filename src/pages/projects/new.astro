@@ -1,0 +1,228 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Lisää uusi projekti">
+    <div class="sivu-säiliö">
+        <h2><i class="fa-solid fa-circle-plus" style="color: #3b82f6;"></i> Lisää uusi projekti</h2>
+        <p>Kirjaa ylös uusi remontti, huoltotyö tai tarvikehanke.</p>
+
+        <!-- LOMAKE -->
+        <form id="projekti-lomake" class="laatikko tumma-lomake">
+            <div class="lomake-ryhma">
+                <label for="nimi">Projektin nimi *</label>
+                <input type="text" id="nimi" placeholder="Esim. Terassin huoltomaalaus" required />
+            </div>
+
+            <div class="lomake-ryhma">
+                <label for="kuvaus">Kuvaus / Ohjeet</label>
+                <textarea id="kuvaus" rows="4" placeholder="Mitä tehdään? Ohjeet, värikoodit jne..."></textarea>
+            </div>
+
+            <div class="lomake-rivi">
+                <div class="lomake-ryhma">
+                    <label for="tekija">Vastuuhenkilö / Tekijä</label>
+                    <input type="text" id="tekija" placeholder="Esim. Jussi" />
+                </div>
+                <div class="lomake-ryhma">
+                    <label for="kustannus">Arvioitu kustannus (€)</label>
+                    <input type="number" id="kustannus" min="0" value="0" />
+                </div>
+            </div>
+
+            <div class="lomake-ryhma">
+                <label for="tarvikkeet">Tarvittavat materiaalit & Työkalut</label>
+                <textarea id="tarvikkeet" rows="3" placeholder="Esim. Terassiöljy 5L, pensselit, hiomapaperi..."></textarea>
+            </div>
+
+            <p id="tila-viesti" class="viesti" style="display: none;"></p>
+
+            <div class="nappi-rivi">
+                <button type="submit" id="tallenna-nappi">Tallenna projekti kantaan</button>
+            </div>
+        </form>
+
+        <div style="margin-top: 30px;">
+            <a href="/works" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon</a>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    import { supabase } from '../../lib/supabase';
+
+    const lomake = document.getElementById('projekti-lomake') as HTMLFormElement;
+    const viestiElementti = document.getElementById('tila-viesti');
+    const nappi = document.getElementById('tallenna-nappi') as HTMLButtonElement;
+
+    lomake.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Lukitaan nappi latauksen ajaksi
+        nappi.disabled = true;
+        nappi.innerText = "Tallennetaan...";
+        
+        viestiElementti.style.display = 'none';
+        viestiElementti.className = 'viesti';
+
+        // Haetaan arvot kentistä
+        const nimi = (document.getElementById('nimi') as HTMLInputElement).value;
+        const kuvaus = (document.getElementById('kuvaus') as HTMLTextAreaElement).value;
+        const tekija = (document.getElementById('tekija') as HTMLInputElement).value;
+        const kustannus = parseFloat((document.getElementById('kustannus') as HTMLInputElement).value) || 0;
+        const tarvikkeet = (document.getElementById('tarvikkeet') as HTMLTextAreaElement).value;
+
+        // Lähetetään tiedot Supabaseen. Uusi projekti menee oletuksena statukselle 'avoin'.
+        const { data, error } = await supabase
+            .from('projektit')
+            .insert([
+                { 
+                    nimi, 
+                    kuvaus, 
+                    tekija, 
+                    kustannus, 
+                    tarvikkeet,
+                    status: 'avoin' 
+                }
+            ]);
+
+        if (error) {
+            viestiElementti.innerText = "Virhe tallennuksessa: " + error.message;
+            viestiElementti.classList.add('virhe');
+            viestiElementti.style.display = 'block';
+            nappi.disabled = false;
+            nappi.innerText = "Tallenna projekti kantaan";
+        } else {
+            viestiElementti.innerText = "✓ Projekti tallennettu onnistuneesti avaamattomiin töihin!";
+            viestiElementti.classList.add('onnistuminen');
+            viestiElementti.style.display = 'block';
+            
+            // Tyhjennetään lomake
+            lomake.reset();
+            
+            // Palautetaan nappi entiselleen pienen viiveen jälkeen
+            setTimeout(() => {
+                nappi.disabled = false;
+                nappi.innerText = "Tallenna projekti kantaan";
+            }, 2000);
+        }
+    });
+</script>
+
+<style>
+    .sivu-säiliö {
+        max-width: 650px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    h2 {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    
+    /* Tyylikäs tumma lomakepohja */
+    .tumma-lomake {
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        margin-top: 24px;
+    }
+
+    .lomake-ryhma {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 20px;
+    }
+
+    .lomake-rivi {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #ccc;
+    }
+
+    /* Syöttökenttien tyylit */
+    input, textarea {
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background: #2a2a2a;
+        color: #ffffff;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+    }
+
+    /* Tallennuspainike */
+    button[type="submit"] {
+        width: 100%;
+        padding: 14px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+    }
+    button[type="submit"]:hover {
+        background: #2563eb;
+    }
+    button[type="submit"]:active {
+        transform: scale(0.98);
+    }
+    button:disabled {
+        background: #555 !important;
+        cursor: not-allowed;
+    }
+
+    /* Tilaviestit */
+    .viesti {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        text-align: center;
+    }
+    .virhe {
+        background: #7f1d1d;
+        color: #fca5a5;
+        border: 1px solid #991b1b;
+    }
+    .onnistuminen {
+        background: #064e3b;
+        color: #6ee7b7;
+        border: 1px solid #065f46;
+    }
+
+    .paluu-linkki {
+        display: inline-block;
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 8px 16px;
+        background: #f0f0f0;
+        border-radius: 6px;
+    }
+    .paluu-linkki:hover { background: #e0e0e0; }
+
+    /* Mobiilioptimointi */
+    @media (max-width: 480px) {
+        .lomake-rivi {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+    }
+</style>
