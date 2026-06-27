@@ -19,8 +19,8 @@ import MainLayout from '../layouts/MainLayout.astro';
 
     <div id="kortti-laatikko" style="display: none;">
 
-        <!-- SÄÄKORTTI (UUSI) -->
-        <div class="laatikko laatikko-kuvalla saa-laatikko-pohja" style="background-image: url('/weather.jpg');">
+        <!-- SÄÄKORTTI TAUSTAKUVALLA -->
+        <div class="laatikko laatikko-kuvalla saa-laatikko-pohja" style="background-image: url('/weather.jpg'); background-color: transparent;">
             <div class="saa-overlay">
                 <div class="saa-otsikko">
                     <h3><i class="fa-solid fa-cloud-sun"></i> Sää Vaajasalossa</h3>
@@ -37,7 +37,6 @@ import MainLayout from '../layouts/MainLayout.astro';
                 </div>
             </div>
         </div>
-
         <a href="/works" class="laatikko laatikko-kuvalla" style="background-image: url('/tools.jpg');">
             <div class="kortti-sisalto keskitys">
                 <div class="otsikko-rivi">
