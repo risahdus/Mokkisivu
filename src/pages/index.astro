@@ -1,24 +1,31 @@
 ---
-// 1. Haetaan yhteinen sivupohja
 import MainLayout from '../layouts/MainLayout.astro';
+import { supabase } from '../lib/supabase';
 
-// 2. BACKEND: Salasanan tarkistus palvelimella (Pidetään tämä ennallaan)
+// BACKEND: Kirjautumisen käsittely Supabasella
 let isAuthenticated = false;
 let errorMessage = "";
-const CORRECT_PASSWORD = "Mokki2026";
 
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
-    const enteredPassword = data.get("password");
+    const email = data.get("email");
+    const password = data.get("password");
 
-    if (enteredPassword === CORRECT_PASSWORD) {
+    // Pyydetään Supabasea tarkistamaan tunnus ja salasana
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      errorMessage = "Väärä tunnus tai salasana!";
+    } else if (authData.user) {
       isAuthenticated = true;
-    } else {
-      errorMessage = "Väärä salasana, yritä uudelleen!";
     }
   } catch (error) {
     console.error(error);
+    errorMessage = "Yhteysvirhe, yritä uudelleen.";
   }
 }
 ---
@@ -28,16 +35,19 @@ if (Astro.request.method === "POST") {
     { !isAuthenticated ? (
         <div class="laatikko kirjautuminen">
             <h2>Sivu on suojattu</h2>
-            <p>Syötä mökin salasana nähdäksesi remonttilistan.</p>
+            <p>Syötä mökin yhteinen tunnus nähdäksesi sisällön.</p>
             
             <form method="POST">
-                <input type="password" name="password" placeholder="Salasana" required />
-                { errorMessage && <p class="virhe">{errorMessage}</p> }
+                <input type="email" name="email" placeholder="Sähköposti (esim. mokki@meidanperhe.fi)" required style="margin-bottom: 12px; width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;" />
+                
+                <input type="password" name="password" placeholder="Salasana" required style="margin-bottom: 12px; width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;" />
+                
+                { errorMessage && <p class="virhe" style="color: red; margin-bottom: 12px;">{errorMessage}</p> }
                 <button type="submit">Kirjaudu sisään</button>
             </form>
         </div>
     ) : (
-        <a href="/works" class="laatikko laatikko-kuvalla" style="background-image: url('/tools.JPG');">
+        <a href="/works" class="laatikko laatikko-kuvalla" style="background-image: url('/tools.jpg');">
             <div class="kortti-sisalto keskitys">
                 <div class="otsikko-rivi">
                     <i class="fa-solid fa-tools"></i> 
