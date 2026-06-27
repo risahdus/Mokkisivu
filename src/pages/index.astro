@@ -121,23 +121,34 @@ import MainLayout from '../layouts/MainLayout.astro';
                 const tuuli = Math.round(data.current.wind_speed_10m);
                 const koodi = data.current.weather_code;
                 
-                document.getElementById('saa-lampotila').innerText = (temp > 0 ? '+' : '') + temp;
-                document.getElementById('saa-tuuli').innerText = tuuli.toString();
+                // Haetaan elementit muuttujiin
+                const tempEl = document.getElementById('saa-lampotila');
+                const tuuliEl = document.getElementById('saa-tuuli');
+                const kuvausEl = document.getElementById('saa-kuvaus');
+                const aikaEl = document.getElementById('saa-aika');
+
+                // Päivitetään tiedot vain jos elementit ovat olemassa ruudulla
+                if (tempEl) tempEl.innerText = (temp > 0 ? '+' : '') + temp;
+                if (tuuliEl) tuuliEl.innerText = tuuli.toString();
+                if (aikaEl) aikaEl.innerText = "Nyt";
                 
-                // Selkokieliset sääkuvaukset WMO-koodien mukaan
-                let kuvaus = "Selkeää";
-                if (koodi >= 1 && koodi <= 3) kuvaus = "Puolipilvistä";
-                else if (koodi >= 45 && koodi <= 48) kuvaus = "Sumuista";
-                else if (koodi >= 51 && koodi <= 67) kuvaus = "Vesisadetta";
-                else if (koodi >= 71 && koodi <= 77) kuvaus = "Lumisadetta";
-                else if (koodi >= 80 && koodi <= 82) kuvaus = "Kuurosadetta";
-                else if (koodi >= 95) kuvaus = "Ukkosta";
-                
-                document.getElementById('saa-kuvaus').innerText = kuvaus;
-                document.getElementById('saa-aika').innerText = "Nyt";
+                if (kuvausEl) {
+                    // Selkokieliset sääkuvaukset WMO-koodien mukaan
+                    let kuvaus = "Selkeää";
+                    if (koodi >= 1 && koodi <= 3) kuvaus = "Puolipilvistä";
+                    else if (koodi >= 45 && koodi <= 48) kuvaus = "Sumuista";
+                    else if (koodi >= 51 && koodi <= 67) kuvaus = "Vesisadetta";
+                    else if (koodi >= 71 && koodi <= 77) kuvaus = "Lumisadetta";
+                    else if (koodi >= 80 && koodi <= 82) kuvaus = "Kuurosadetta";
+                    else if (koodi >= 95) kuvaus = "Ukkosta";
+                    
+                    kuvausEl.innerText = kuvaus;
+                }
             }
         } catch (e) {
-            document.getElementById('saa-kuvaus').innerText = "Säätilaa ei saatu ladattua";
+            console.error("Säänhaku epäonnistui:", e);
+            const kuvausEl = document.getElementById('saa-kuvaus');
+            if (kuvausEl) kuvausEl.innerText = "Säätilaa ei saatu ladattua";
         }
     };
 
