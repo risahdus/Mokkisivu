@@ -2,15 +2,203 @@
 import MainLayout from '../layouts/MainLayout.astro';
 ---
 
-<MainLayout title="Vieraskirja">
-    
-    <div class="laatikko">
-        <h2><i class="fa-solid fa-book-open"></i> Vieraskirja</h2>
-        <p>Tervetuloa vieraskirjaan! Tänne perheenjäsenet voivat myöhemmin jättää terveisiään.</p>
-        
-        <a href="#" onclick="history.back(); return false;" style="display: inline-block; margin-top: 20px; color: var(--primary); text-decoration: none;">
-            <i class="fa-solid fa-arrow-left"></i> Takaisin etusivulle
-        </a>
-    </div>
+<MainLayout title="Mökkikirja">
+    <div class="sivu-säiliö">
+        <h2><i class="fa-solid fa-book-open" style="color: #a16207;"></i> Mökkikirja & Vieraskirja</h2>
+        <p>Kirjoita ylös kuulumiset, säähavainnot, kalansaaliit tai muut muistot vierailustasi.</p>
 
+        <!-- LOMAKE UUDELLE MERKINNÄLLE -->
+        <form id="vieraskirja-lomake" class="laatikko tumma-lomake">
+            <div class="lomake-ryhma">
+                <label for="kirjoittaja">Nimesi / Kirjoittaja *</label>
+                <input type="text" id="kirjoittaja" placeholder="Esim. Antti & perhe" required />
+            </div>
+
+            <div class="lomake-ryhma">
+                <label for="viesti">Tarinat ja terveiset *</label>
+                <textarea id="viesti" rows="5" placeholder="Mitä tehtiin? Paljonko oli lämpöä? Saimmeko kalaa?..." required></textarea>
+            </div>
+
+            <p id="lomake-viesti" class="tila-viesti" style="display: none;"></p>
+
+            <div class="nappi-rivi">
+                <button type="submit" id="tallenna-nappi">Jätä merkintä kirjaan</button>
+            </div>
+        </form>
+
+        <hr class="erotin" />
+
+        <!-- HISTORIA / VANHAT MERKINNÄT -->
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Vanhat merkinnät</h3>
+        <div id="lataus" class="keskitys">Ladataan mökkikirjaa...</div>
+        <div id="viesti-lista" class="lista-virta"></div>
+
+        <div style="margin-top: 30px;">
+            <a href="/" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin etusivulle</a>
+        </div>
+    </div>
 </MainLayout>
+
+<script>
+    import { supabase } from '../lib/supabase';
+
+    const lomake = document.getElementById('vieraskirja-lomake') as HTMLFormElement;
+    const listaElementti = document.getElementById('viesti-lista');
+    const latausElementti = document.getElementById('lataus');
+    const tilaViesti = document.getElementById('lomake-viesti');
+    const tallennaNappi = document.getElementById('tallenna-nappi') as HTMLButtonElement;
+
+    // 1. HAETAAN VANHAT MERKINNÄT KANNASTA
+    const haeMerkinnat = async () => {
+        if (!listaElementti) return;
+        
+        // Tyhjennetään lista uutta hakua varten
+        listaElementti.innerHTML = '';
+
+        const { data: merkinnat, error } = await supabase
+            .from('vieraskirja')
+            .select('*')
+            .order('luotu_at', { ascending: false });
+
+        if (latausElementti) latausElementti.style.display = 'none';
+
+        if (error) {
+            listaElementti.innerHTML = `<p style="color: red;">Virhe ladattaessa kirjaa: ${error.message}</p>`;
+            return;
+        }
+
+        if (!merkinnat || merkinnat.length === 0) {
+            listaElementti.innerHTML = '<p>Mökkikirja on vielä tyhjä. Ole ensimmäinen ja kirjoita jotain!</p>';
+            return;
+        }
+
+        // Rakennetaan viestit näytölle
+        merkinnat.forEach(merkinta => {
+            // Muotoillaan pvm suomalaiseen silmään (PP.KK.VVVV)
+            const pvm = new Date(merkinta.luotu_at).toLocaleDateString('fi-FI');
+            
+            const viestiLaatikko = document.createElement('div');
+            viestiLaatikko.className = 'laatikko merkinta-kortti';
+            viestiLaatikko.innerHTML = `
+                <div class="merkinta-ylatunniste">
+                    <strong class="kirjoittaja-nimi"><i class="fa-solid fa-user-pen"></i> ${merkinta.kirjoittaja}</strong>
+                    <span class="merkinta-pvm">${pvm}</span>
+                </div>
+                <p class="merkinta-teksti">${merkinta.viesti}</p>
+            `;
+            listaElementti.appendChild(viestiLaatikko);
+        });
+    };
+
+    // 2. LÄHETETÄÄN UUSI MERKINTÄ KANTAAN
+    lomake.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        tallennaNappi.disabled = true;
+        tallennaNappi.innerText = "Tallennetaan...";
+        if (tilaViesti) tilaViesti.style.display = 'none';
+
+        const kirjoittaja = (document.getElementById('kirjoittaja') as HTMLInputElement).value;
+        const viesti = (document.getElementById('viesti') as HTMLTextAreaElement).value;
+
+        const { error } = await supabase
+            .from('vieraskirja')
+            .insert([{ kirjoittaja, viesti }]);
+
+        if (error) {
+            if (tilaViesti) {
+                tilaViesti.innerText = "Virhe tallennuksessa: " + error.message;
+                tilaViesti.className = "tila-viesti virhe";
+                tilaViesti.style.display = 'block';
+            }
+            tallennaNappi.disabled = false;
+            tallennaNappi.innerText = "Jätä merkintä kirjaan";
+        } else {
+            if (tilaViesti) {
+                tilaViesti.innerText = "✓ Terveiset tallennettu mökkikirjaan!";
+                tilaViesti.className = "tila-viesti onnistuminen";
+                tilaViesti.style.display = 'block';
+            }
+            
+            lomake.reset();
+            tallennaNappi.disabled = false;
+            tallennaNappi.innerText = "Jätä merkintä kirjaan";
+
+            // Haetaan lista uudestaan lennosta, jotta uusi viesti pamahtaa heti näkyviin!
+            haeMerkinnat();
+        }
+    });
+
+    // Käynnistetään haku kun sivu aukeaa
+    haeMerkinnat();
+</script>
+
+<style>
+    .sivu-säiliö {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    h2 { font-size: 2rem; margin-bottom: 8px; color: #1a1a1a; }
+    h3 { font-size: 1.4rem; margin: 30px 0 15px 0; color: #1a1a1a; }
+    
+    .tumma-lomake {
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        margin-top: 20px;
+    }
+    .lomake-ryhma { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    label { font-size: 0.9rem; font-weight: 600; color: #ccc; }
+    input, textarea { padding: 12px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #ffffff; font-size: 1rem; }
+    input:focus, textarea:focus { outline: none; border-color: #a16207; }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        background: #a16207;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    button:hover { background: #854d0e; }
+    button:disabled { background: #555 !important; cursor: not-allowed; }
+
+    .erotin { border: 0; height: 1px; background: #e0e0e0; margin: 40px 0; }
+
+    /* Vanhojen merkintöjen tyylit (Kortit valkoisella pohjalla ja tummalla tekstillä) */
+    .lista-virta { display: flex; flex-direction: column; gap: 20px; }
+    .merkinta-kortti {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        padding: 20px;
+        border-radius: 8px;
+        color: #333;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .merkinta-ylatunniste {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+    .kirjoittaja-nimi { color: #1a1a1a; font-size: 1.1rem; }
+    .merkinta-pvm { font-size: 0.85rem; color: #888; }
+    .merkinta-teksti { margin: 0; font-size: 1rem; line-height: 1.5; white-space: pre-line; color: #222; }
+
+    /* Tilaviestit */
+    .tila-viesti { padding: 12px; border-radius: 6px; margin-bottom: 16px; font-weight: 600; text-align: center; }
+    .virhe { background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+    .onnistuminen { background: #064e3b; color: #6ee7b7; border: 1px solid #065f46; }
+
+    .paluu-linkki { display: inline-block; color: #333; text-decoration: none; font-weight: 600; padding: 8px 16px; background: #f0f0f0; border-radius: 6px; }
+    .paluu-linkki:hover { background: #e0e0e0; }
+</style>
