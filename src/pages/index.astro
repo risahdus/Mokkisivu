@@ -20,18 +20,20 @@ import MainLayout from '../layouts/MainLayout.astro';
     <div id="kortti-laatikko" style="display: none;">
 
         <!-- SÄÄKORTTI (UUSI) -->
-        <div class="laatikko saa-laatikko">
-            <div class="saa-otsikko">
-                <h3><i class="fa-solid fa-cloud-sun"></i> Sää Vaajasalossa</h3>
-                <span id="saa-aika">Päivitetään...</span>
-            </div>
-            <div class="saa-sisalto">
-                <div class="saa-paaluku">
-                    <span id="saa-lampotila">--</span><span class="yksikko">°C</span>
+        <div class="laatikko laatikko-kuvalla saa-laatikko-pohja" style="background-image: url('/weather.jpg');">
+            <div class="saa-overlay">
+                <div class="saa-otsikko">
+                    <h3><i class="fa-solid fa-cloud-sun"></i> Sää Vaajasalossa</h3>
+                    <span id="saa-aika">Päivitetään...</span>
                 </div>
-                <div class="saa-info">
-                    <p id="saa-kuvaus">Ladataan säätilaa...</p>
-                    <p><i class="fa-solid fa-wind"></i> Tuuli: <span id="saa-tuuli">--</span> m/s</p>
+                <div class="saa-sisalto">
+                    <div class="saa-paaluku">
+                        <span id="saa-lampotila">--</span><span class="yksikko">°C</span>
+                    </div>
+                    <div class="saa-info">
+                        <p id="saa-kuvaus">Ladataan säätilaa...</p>
+                        <p><i class="fa-solid fa-wind"></i> Tuuli: <span id="saa-tuuli">--</span> m/s</p>
+                    </div>
                 </div>
             </div>
         </div>
