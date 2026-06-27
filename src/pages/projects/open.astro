@@ -1,0 +1,168 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Avoimet projektit">
+    <div class="sivu-säiliö">
+        <h2><i class="fa-solid fa-hourglass-half" style="color: #f59e0b;"></i> Avoimet & Kesken olevat työt</h2>
+        <p>Tältä sivulta löydät kaikki mökin odottavat remontit ja käynnissä olevat urakat.</p>
+
+        <div id="lataus" class="keskitys">Ladataan projekteja...</div>
+        <div id="projekti-lista" class="lista-ruudukko"></div>
+
+        <div style="margin-top: 30px;">
+            <a href="/works" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon</a>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    import { supabase } from '../../lib/supabase';
+
+    const listaElementti = document.getElementById('projekti-lista');
+    const latausElementti = document.getElementById('lataus');
+
+    const haeAvoimetProjektit = async () => {
+        // Haetaan projektit, joiden status EI OLE 'valmis' (eli ovat joko 'avoin' tai 'kesken')
+        const { data: projektit, error } = await supabase
+            .from('projektit')
+            .select('*')
+            .neq('status', 'valmis')
+            .order('luotu_at', { ascending: false });
+
+        latausElementti.style.display = 'none';
+
+        if (error) {
+            listaElementti.innerHTML = `<p style="color: red;">Virhe haettaessa tietoja: ${error.message}</p>`;
+            return;
+        }
+
+        if (!projektit || projektit.length === 0) {
+            listaElementti.innerHTML = '<p>Ei avoimia projekteja! Kaikki työt tehty tai listat tyhjänä. 🥂</p>';
+            return;
+        }
+
+        // Rakennetaan lista haetuista projekteista
+        projektit.forEach(projekti => {
+            const kortti = document.createElement('a');
+            kortti.href = `/projects/${projekti.id}`; // Vie projektin omalle dynaamiselle sivulle
+            kortti.className = 'laatikko projekti-rivi';
+            
+            // Tehdään status-tagista eri värinen riippuen siitä onko se avoin vai kesken
+            const onKesken = projekti.status === 'kesken';
+            const statusTeksti = onKesken ? 'Kesken' : 'Avoin';
+            const statusLuokka = onKesken ? 'tagi-kesken' : 'tagi-avoin';
+
+            kortti.innerHTML = `
+                <div class="projekti-info">
+                    <div class="otsikko-rivi-pieni">
+                        <h3>${projekti.nimi}</h3>
+                        <span class="status-tagi ${statusLuokka}">${statusTeksti}</span>
+                    </div>
+                    <p class="kuvaus-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
+                    <div class="metatiedot">
+                        <span><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
+                        <span><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
+                    </div>
+                </div>
+                <div class="nuoli"><i class="fa-solid fa-chevron-right"></i></div>
+            `;
+            listaElementti.appendChild(kortti);
+        });
+    };
+
+    // Käynnistetään haku lennosta
+    haeAvoimetProjektit();
+</script>
+
+<style>
+    .sivu-säiliö {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    h2 {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    .lista-ruudukko {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 20px;
+    }
+    
+    .projekti-rivi {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none;
+        color: #333;
+        padding: 20px;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .projekti-rivi:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-color: #f59e0b;
+    }
+    
+    .otsikko-rivi-pieni {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+    }
+    .otsikko-rivi-pieni h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: #1a1a1a;
+    }
+
+    /* Status-tagien tyylit */
+    .status-tagi {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+    .tagi-avoin {
+        background: #fef3c7;
+        color: #d97706;
+        border: 1px solid #fcd34d;
+    }
+    .tagi-kesken {
+        background: #e0f2fe;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+    }
+
+    .kuvaus-teksti {
+        font-size: 0.95rem;
+        color: #666;
+        margin: 0 0 12px 0;
+    }
+    .metatiedot {
+        display: flex;
+        gap: 16px;
+        font-size: 0.85rem;
+        color: #888;
+    }
+    .nuoli {
+        color: #ccc;
+        font-size: 1.2rem;
+    }
+    .paluu-linkki {
+        display: inline-block;
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 8px 16px;
+        background: #f0f0f0;
+        border-radius: 6px;
+    }
+    .paluu-linkki:hover { background: #e0e0e0; }
+</style>
