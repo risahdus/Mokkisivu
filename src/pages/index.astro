@@ -40,14 +40,20 @@ import MainLayout from '../layouts/MainLayout.astro';
 </MainLayout>
 
 <script>
-    import { supabase } from '../lib/supabase';
+    import { createClient } from '@supabase/supabase-js';
+
+    // Syötetään se sinun varmistamasi URL ja avain suoraan tähän selaimelle
+    const URL = "https://ydahjbdtueiimulyecws.supabase.co";
+    const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkYWhqYmR0dWVpaW11bHllY3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0Nzc0NjQsImV4cCI6MjA5ODA1MzQ2NH0.JsdRxEYuyln8VRrJiQ68n_jJPd0Yq2ABjBqB5zVs2Po";
+
+    const supabase = createClient(URL, KEY);
 
     const lomake = document.getElementById('kirjautumis-lomake');
     const virheElementti = document.getElementById('virhe-viesti');
     const kirjautumisNakyma = document.getElementById('kirjautumis-laatikko');
     const korttiNakyma = document.getElementById('kortti-laatikko');
 
-    // Jos käyttäjä on jo aiemmin kirjautunut, näytetään kortit heti
+    // Tarkistetaan onko istunto jo valmiiksi auki
     const tarkistaIstunto = async () => {
         const { data } = await supabase.auth.getSession();
         if (data?.session) {
@@ -64,7 +70,7 @@ import MainLayout from '../layouts/MainLayout.astro';
         const email = (document.getElementById('email') as HTMLInputElement).value;
         const password = (document.getElementById('password') as HTMLInputElement).value;
 
-        // Tehdään haku suoraan selaimesta käsin
+        // Suora haku selaimesta Supabaseen
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
@@ -74,7 +80,6 @@ import MainLayout from '../layouts/MainLayout.astro';
             virheElementti.innerText = "Virhe: " + error.message;
             virheElementti.style.display = 'block';
         } else if (data.user) {
-            // Kirjautuminen onnistui! Piilotetaan lomake ja näytetään kortit
             kirjautumisNakyma.style.display = 'none';
             korttiNakyma.style.display = 'block';
         }
