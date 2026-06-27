@@ -12,27 +12,27 @@ import MainLayout from '../layouts/MainLayout.astro';
     <div class="kortti-ruudukko">
         
         <a href="/projekti/uusi" class="laatikko laatikko-kuvalla" style="background-image: url('/newproject.jpg');">
-            <div class="kortti-sisalto keskitys">
+            <div class="kortti-sisalto uusi-tehoste">
                 <div class="otsikko-rivi">
-                    <i class="fa-solid fa-circle-plus" style="color: #3b82f6;"></i> 
+                    <i class="fa-solid fa-circle-plus"></i> 
                     <h2>Lisää uusi projekti</h2>
                 </div>
             </div>
         </a>
 
         <a href="/projekti/avoimet" class="laatikko laatikko-kuvalla" style="background-image: url('/openprojects.jpg');">
-            <div class="kortti-sisalto keskitys">
+            <div class="kortti-sisalto avoimet-tehoste">
                 <div class="otsikko-rivi">
-                    <i class="fa-solid fa-hourglass-half" style="color: #f59e0b;"></i> 
+                    <i class="fa-solid fa-hourglass-half"></i> 
                     <h2>Avoimet projektit</h2>
                 </div>
             </div>
         </a>
 
         <a href="/projekti/valmiit" class="laatikko laatikko-kuvalla" style="background-image: url('/readyprojects.jpg');">
-            <div class="kortti-sisalto keskitys">
+            <div class="kortti-sisalto valmiit-tehoste">
                 <div class="otsikko-rivi">
-                    <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 
+                    <i class="fa-solid fa-circle-check"></i> 
                     <h2>Valmiit projektit</h2>
                 </div>
             </div>
@@ -67,7 +67,7 @@ import MainLayout from '../layouts/MainLayout.astro';
         margin-bottom: 32px;
     }
 
-    /* Käytetään etusivulta tuttua laatikko-kuvalla tyyliä */
+    /* Tumma laatikko-kuvalla pohja */
     .laatikko-kuvalla {
         height: 180px;
         position: relative;
@@ -77,16 +77,18 @@ import MainLayout from '../layouts/MainLayout.astro';
         overflow: hidden;
         text-decoration: none;
         display: flex;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .laatikko-kuvalla:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
 
+    /* Tumma overlay tekstin taakse, jotta kuva kuultaa läpi */
     .kortti-sisalto {
-        background: rgba(255, 255, 255, 0.9); /* Vaalea tausta tekstille, jotta erottuu kuvan päältä */
+        background: rgba(0, 0, 0, 0.6); 
         width: 100%;
         padding: 20px;
         display: flex;
@@ -95,25 +97,33 @@ import MainLayout from '../layouts/MainLayout.astro';
         transition: background 0.2s ease;
     }
 
-    .laatikko-kuvalla:hover .kortti-sisalto {
-        background: rgba(255, 255, 255, 0.95);
-    }
+    /* Tehostevärit ikoneille ja korostuksille (hoverissa tummenee ja väri syventyy) */
+    .uusi-tehoste i { color: #3b82f6; } /* Sininen */
+    .uusi-tehoste:hover { background: rgba(0, 0, 0, 0.75); }
+
+    .avoimet-tehoste i { color: #f59e0b; } /* Keltainen */
+    .avoimet-tehoste:hover { background: rgba(0, 0, 0, 0.75); }
+
+    .valmiit-tehoste i { color: #10b981; } /* Vihreä */
+    .valmiit-tehoste:hover { background: rgba(0, 0, 0, 0.75); }
 
     .otsikko-rivi {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
     }
 
     .otsikko-rivi i {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
 
+    /* Teksti puhtaan valkoiseksi */
     .otsikko-rivi h2 {
         font-size: 1.4rem;
-        color: #1a1a1a;
+        color: #ffffff;
         margin: 0;
         font-weight: 700;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.5); /* Lisätään kontrastia */
     }
 
     .paluu-linkki {
