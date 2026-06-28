@@ -3,15 +3,20 @@ import MainLayout from '../../layouts/MainLayout.astro';
 ---
 
 <MainLayout title="Avoimet & Kesken olevat työt">
-    <div class="sivu-säiliö">
-        <h2><i class="fa-solid fa-hourglass-half" style="color: #f59e0b;"></i> Avoimet & Kesken olevat työt</h2>
-        <p class="sivun-kuvaus">Tältä sivulta löydät kaikki mökin odottavat remontit ja käynnissä olevat urakat.</p>
+    <div style="max-width: 700px; margin: 0 auto; padding: 20px 15px;">
+        
+        <h2 style="color: #111827; font-size: 1.8rem; margin-bottom: 20px;">
+            <i class="fa-solid fa-hourglass-half"></i> Avoimet &amp; Kesken olevat työt
+        </h2>
 
-        <div id="lataus" class="keskitys">Ladataan projekteja...</div>
-        <div id="projekti-lista" class="lista-virta"></div>
+        <!-- Lataus-indikaattori ja lista -->
+        <div id="lataus" style="text-align: center; padding: 20px; color: #6b7280;">Ladataan projekteja...</div>
+        <div id="projekti-lista" style="display: flex; flex-direction: column; gap: 25px;"></div>
 
-        <div style="margin-top: 35px;">
-            <a href="/works" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon</a>
+        <div style="margin-top: 40px;">
+            <a href="/works" style="display: inline-block; color: #374151; text-decoration: none; font-weight: 600; padding: 10px 20px; background: #f3f4f6; border-radius: 8px;">
+                <i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon
+            </a>
         </div>
     </div>
 </MainLayout>
@@ -34,12 +39,12 @@ import MainLayout from '../../layouts/MainLayout.astro';
         if (latausElementti) latausElementti.style.display = 'none';
 
         if (error) {
-            listaElementti.innerHTML = `<p style="color: red; text-align: center;">Virhe haettaessa tietoja: ${error.message}</p>`;
+            listaElementti.innerHTML = `<p style="color: red;">Virhe haettaessa tietoja: ${error.message}</p>`;
             return;
         }
 
         if (!projektit || projektit.length === 0) {
-            listaElementti.innerHTML = '<p class="keskitys">Ei avoimia projekteja! Kaikki työt tehty tai listat tyhjänä. 🥂</p>';
+            listaElementti.innerHTML = '<p>Ei avoimia projekteja.</p>';
             return;
         }
 
@@ -48,48 +53,53 @@ import MainLayout from '../../layouts/MainLayout.astro';
         projektit.forEach(projekti => {
             const kortti = document.createElement('a');
             kortti.href = `/projects/${projekti.id}`;
-            // RIISUTTU VANHAT LUOKAT: Käytetään vain tätä yhtä uutta luokkaa, jotta vanhat tyylit eivät sotke!
-            kortti.className = 'mokin-remontti-paneeli'; 
+            
+            // PALAUTETTU: Sivustosi viralliset, toimivat korttiluokat!
+            kortti.className = 'laatikko laatikko-kuvalla'; 
             kortti.style.backgroundImage = "url('/tools.jpg')"; 
             
-            const onKesken = projekti.status === 'kesken';
-            const statusTeksti = onKesken ? 'Kesken' : 'Avoin';
-            const statusLuokka = onKesken ? 'tagi-kesken' : 'tagi-avoin';
+            // Pakotetaan kortille reilu sisäinen marginaali (padding), pyöristetyt nurkat ja musta kuultava tausta tekstin alle
+            kortti.style.padding = '30px';
+            kortti.style.borderRadius = '12px';
+            kortti.style.textDecoration = 'none';
+            kortti.style.display = 'block';
+            kortti.style.backgroundPosition = 'center';
+            kortti.style.backgroundSize = 'cover';
+            kortti.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            
+            // Tehdään tekstien taustasta tasaisen musta, jotta valkoinen teksti erottuu satavarmasti
+            kortti.style.backgroundBlendMode = 'overlay';
+            kortti.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
 
-            // Tarvike-lohko (Sininen väri poistettu, tilalla selkeä valkoinen)
-            let tarvikkeetHtml = '';
+            const tilateksti = projekti.status === 'kesken' ? 'KESKEN' : 'AVOIN';
+
+            // Rakennetaan tarvikkeet vain jos niitä on
+            let tarvikkeetOsa = '';
             if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
-                tarvikkeetHtml = `
-                    <div class="moki-kortti-osio">
-                        <strong class="moki-vali-otsikko"><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet & Materiaalit:</strong>
-                        <p class="moki-osion-teksti">${projekti.tarvikkeet}</p>
-                    </div>
+                tarvikkeetOsa = `
+                    <br />
+                    <strong style="color: #ffffff;">Tarvikkeet:</strong><br />
+                    <span style="color: #ffffff; opacity: 0.9;">${projekti.tarvikkeet}</span><br />
                 `;
             }
 
+            // KAIKKI TEKSTI VALKOISEKSI (style="color: #ffffff;")
             kortti.innerHTML = `
-                <div class="moki-pimeys-kerros">
-                    <div class="moki-kortti-yla">
-                        <h2 class="valkoinen-otsikko">${projekti.nimi}</h2>
-                        <span class="status-pilleri ${statusLuokka}">${statusTeksti}</span>
+                <div style="color: #ffffff !important; text-decoration: none !important;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="color: #ffffff !important; margin: 0; font-size: 1.5rem; font-weight: 700; text-decoration: none !important;">${projekti.nimi}</h2>
+                        <strong style="color: #ffffff; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">${tilateksti}</strong>
                     </div>
                     
-                    <div class="moki-kortti-osio">
-                        <strong class="moki-vali-otsikko"><i class="fa-solid fa-file-lines"></i> Projektin kuvaus:</strong>
-                        <p class="moki-osion-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
-                    </div>
+                    <strong style="color: #ffffff;">Kuvaus:</strong><br />
+                    <span style="color: #ffffff; opacity: 0.9;">${projekti.kuvaus || 'Ei kuvausta.'}</span><br />
                     
-                    ${tarvikkeetHtml}
+                    ${tarvikkeetOsa}
                     
-                    <div class="moki-kortti-ala">
-                        <div class="moki-meta-pala">
-                            <strong class="moki-meta-otsikko"><i class="fa-solid fa-user"></i> Vastuuhenkilö</strong>
-                            <span class="valkoinen-teksti">${projekti.tekija || 'Ei tekijää'}</span>
-                        </div>
-                        <div class="moki-meta-pala">
-                            <strong class="moki-meta-otsikko"><i class="fa-solid fa-euro-sign"></i> Kustannusarvio</strong>
-                            <span class="moki-hinta">${projekti.kustannus} €</span>
-                        </div>
+                    <br />
+                    <div style="display: flex; gap: 30px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; font-size: 0.95rem;">
+                        <span style="color: #ffffff;"><i class="fa-solid fa-user"></i> Vastuu: ${projekti.tekija || 'Ei merkitty'}</span>
+                        <span style="color: #ffffff;"><i class="fa-solid fa-euro-sign"></i> Kustannus: ${projekti.kustannus} €</span>
                     </div>
                 </div>
             `;
@@ -99,154 +109,3 @@ import MainLayout from '../../layouts/MainLayout.astro';
 
     haeAvoimetProjektit();
 </script>
-
-<style>
-    .sivu-säiliö {
-        max-width: 700px;
-        margin: 0 auto;
-        padding: 20px 15px;
-    }
-    h2 {
-        font-size: 1.8rem;
-        margin-bottom: 6px;
-        color: #111827;
-    }
-    .sivun-kuvaus {
-        color: #6b7280;
-        margin: 0 0 24px 0;
-    }
-    
-    .lista-virta {
-        display: flex;
-        flex-direction: column;
-        gap: 30px; /* Selkeä, reilu rako korttien välille */
-        margin-top: 20px;
-    }
-    
-    /* TÄYSIN UUSI POHJA - EI SEKOITU VANHOIHIN TYILEIHIN */
-    .mokin-remontti-paneeli {
-        display: block !important;
-        text-decoration: none !important;
-        background-color: #000000 !important; /* Musta pohja varmistukseksi */
-        background-size: cover !important;
-        background-position: center !important;
-        border-radius: 14px !important;
-        overflow: hidden !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
-        margin-bottom: 10px;
-    }
-    .mokin-remontti-paneeli:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.5) !important;
-    }
-
-    /* VAKUUTUSMAISESTI TUMMENNETTU KERROS (Peittää koko kortin) */
-    .moki-pimeys-kerros {
-        /* Taustakuva häivytetään 90% mustalla liukuvärillä, teksti EROTTUU satavarmasti */
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0.92) 0%, rgba(10, 10, 10, 0.88) 100%) !important;
-        padding: 30px !important; /* Pakotetaan reilu sisäinen marginaali joka suuntaan */
-        box-sizing: border-box !important;
-        width: 100% !important;
-    }
-
-    /* Ylärivi */
-    .moki-kortti-yla {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-        padding-bottom: 16px !important;
-        margin-bottom: 20px !important;
-    }
-    
-    /* OTSIVIKKO PAKOTETTU VALKOISEKSI */
-    .valkoinen-otsikko {
-        margin: 0 !important;
-        font-size: 1.5rem !important;
-        font-weight: 700 !important;
-        color: #ffffff !important; /* Sataprosenttisen valkoinen */
-        text-decoration: none !important;
-    }
-
-    /* Statuspilleri */
-    .status-pilleri {
-        font-size: 0.75rem !important;
-        font-weight: 800 !important;
-        padding: 6px 14px !important;
-        border-radius: 20px !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.05em !important;
-    }
-    .tagi-avoin { background: #f59e0b !important; color: #000000 !important; }
-    .tagi-kesken { background: #3b82f6 !important; color: #ffffff !important; }
-
-    /* Osioiden välit */
-    .moki-kortti-osio {
-        margin-bottom: 20px !important;
-    }
-    
-    /* VÄLIOTSIKOT */
-    .moki-vali-otsikko {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        font-size: 0.85rem !important;
-        font-weight: 700 !important;
-        color: #f59e0b !important; /* Selkeä keltainen oranssi otsikoille */
-        text-transform: uppercase !important;
-        letter-spacing: 0.08em !important;
-        margin-bottom: 6px !important;
-    }
-    
-    /* LEIPÄTEKSTIT (Kuvaus ja tarvikkeet) */
-    .moki-osion-teksti {
-        margin: 0 !important;
-        font-size: 1.05rem !important;
-        color: #ffffff !important; /* Pakotettu puhtaan valkoiseksi, ei sinistä! */
-        line-height: 1.6 !important;
-        white-space: pre-line !important;
-    }
-
-    /* Alarivi */
-    .moki-kortti-ala {
-        display: flex !important;
-        gap: 60px !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-        padding-top: 16px !important;
-        margin-top: 12px !important;
-    }
-    .moki-meta-pala {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 4px !important;
-    }
-    .moki-meta-otsikko {
-        font-size: 0.8rem !important;
-        font-weight: 700 !important;
-        color: #9ca3af !important;
-        text-transform: uppercase !important;
-    }
-    .valkoinen-teksti {
-        color: #ffffff !important;
-        font-size: 1rem !important;
-    }
-    .moki-hinta {
-        font-weight: 700 !important;
-        color: #f59e0b !important; /* Hinta keltaisella korostuksella */
-        font-size: 1rem !important;
-    }
-
-    /* Paluulinkki */
-    .paluu-linkki {
-        display: inline-block;
-        color: #374151;
-        text-decoration: none;
-        font-weight: 600;
-        padding: 10px 20px;
-        background: #f3f4f6;
-        border-radius: 8px;
-    }
-    .paluu-linkki:hover { background: #e5e7eb; }
-    .keskitys { text-align: center; padding: 40px; color: #6b7280; }
-</style>
