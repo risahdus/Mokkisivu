@@ -3,15 +3,19 @@ import MainLayout from '../../layouts/MainLayout.astro';
 ---
 
 <MainLayout title="Valmiit projektit">
-    <div class="sivu-säiliö">
-        <h2><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Valmiit projektit</h2>
-        <p>Tältä sivulta löydät kaikki mökillä valmiiksi saadut urakat.</p>
+    <div style="max-width: 700px; margin: 0 auto; padding: 20px 15px;">
+        
+        <h2 style="color: #111827; font-size: 1.8rem; margin-bottom: 20px;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Valmiit projektit
+        </h2>
 
-        <div id="lataus" class="keskitys">Ladataan projekteja...</div>
-        <div id="projekti-lista" class="lista-ruudukko"></div>
+        <div id="lataus" style="text-align: center; padding: 20px; color: #6b7280;">Ladataan projekteja...</div>
+        <div id="projekti-lista" style="display: flex; flex-direction: column; gap: 25px;"></div>
 
-        <div style="margin-top: 30px;">
-            <a href="/works" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon</a>
+        <div style="margin-top: 40px;">
+            <a href="/works" style="display: inline-block; color: #374151; text-decoration: none; font-weight: 600; padding: 10px 20px; background: #f3f4f6; border-radius: 8px;">
+                <i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon
+            </a>
         </div>
     </div>
 </MainLayout>
@@ -23,14 +27,16 @@ import MainLayout from '../../layouts/MainLayout.astro';
     const latausElementti = document.getElementById('lataus');
 
     const haeValmiitProjektit = async () => {
-        // Haetaan Supabasesta vain ne rivit, joiden status on 'valmis'
+        if (!listaElementti) return;
+
+        // HAETAAN VAIN PROJEKTIT JOIDEN STATUS ON 'valmis'
         const { data: projektit, error } = await supabase
             .from('projektit')
             .select('*')
             .eq('status', 'valmis')
             .order('luotu_at', { ascending: false });
 
-        latausElementti.style.display = 'none';
+        if (latausElementti) latausElementti.style.display = 'none';
 
         if (error) {
             listaElementti.innerHTML = `<p style="color: red;">Virhe haettaessa tietoja: ${error.message}</p>`;
@@ -38,95 +44,78 @@ import MainLayout from '../../layouts/MainLayout.astro';
         }
 
         if (!projektit || projektit.length === 0) {
-            listaElementti.innerHTML = '<p>Ei vielä valmiita projekteja arkistossa.</p>';
+            listaElementti.innerHTML = '<p style="color: #6b7280;">Ei vielä valmiita projekteja tällä listalla.</p>';
             return;
         }
 
-        // Rakennetaan lista haetuista projekteista
+        listaElementti.innerHTML = '';
+
         projektit.forEach(projekti => {
             const kortti = document.createElement('a');
-            kortti.href = `/projekti/${projekti.id}`; // Tämä vie projektin omalle dynaamiselle sivulle!
-            kortti.className = 'laatikko projekti-rivi';
+            kortti.href = `/projects/${projekti.id}`;
+            
+            kortti.className = 'laatikko laatikko-kuvalla'; 
+            
+            // Dynaaminen kuvanvalinta projektin nimen perusteella
+            let taustakuva = '/tools.jpg'; 
+            const projektinNimi = projekti.nimi.toLowerCase();
+
+            if (projektinNimi.includes('maalaus') || projektinNimi.includes('maalaa')) {
+                taustakuva = '/painting.jpg';
+            } else if (projektinNimi.includes('laituri') || projektinNimi.includes('ranta')) {
+                taustakuva = '/pier.jpg';
+            } else if (projektinNimi.includes('puu') || projektinNimi.includes('halko') || projektinNimi.includes('metsä')) {
+                taustakuva = '/wood.jpg';
+            } else if (projektinNimi.includes('sauna')) {
+                taustakuva = '/sauna.jpg';
+            }
+
+            kortti.style.backgroundImage = `url('${taustakuva}')`;
+            
+            kortti.style.padding = '30px';
+            kortti.style.borderRadius = '12px';
+            kortti.style.textDecoration = 'none';
+            kortti.style.display = 'block';
+            kortti.style.backgroundPosition = 'center';
+            kortti.style.backgroundSize = 'cover';
+            kortti.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            
+            kortti.style.backgroundBlendMode = 'overlay';
+            kortti.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+
+            // Rakennetaan tarvikkeet kullankeltaisella värillä
+            let tarvikkeetOsa = '';
+            if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
+                tarvikkeetOsa = `
+                    <br />
+                    <strong style="color: #f59e0b;"><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet:</strong><br />
+                    <span style="color: #ffffff; opacity: 0.9;">${projekti.tarvikkeet}</span><br />
+                `;
+            }
+
+            // Kortin sisältö kullankeltaisilla väliotsikoilla
             kortti.innerHTML = `
-                <div class="projekti-info">
-                    <h3>${projekti.nimi}</h3>
-                    <p class="kuvaus-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
-                    <div class="metatiedot">
-                        <span><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei merkitty'}</span>
-                        <span><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
+                <div style="color: #ffffff !important; text-decoration: none !important;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="color: #ffffff !important; margin: 0; font-size: 1.5rem; font-weight: 700; text-decoration: none !important;">${projekti.nimi}</h2>
+                        <strong style="color: #ffffff; background: rgba(16,185,129,0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">VALMIS</strong>
+                    </div>
+                    
+                    <strong style="color: #f59e0b;"><i class="fa-solid fa-file-lines"></i> Kuvaus:</strong><br />
+                    <span style="color: #ffffff; opacity: 0.9;">${projekti.kuvaus || 'Ei kuvausta.'}</span><br />
+                    
+                    ${tarvikkeetOsa}
+                    
+                    <br />
+                    <div style="display: flex; gap: 30px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; font-size: 0.95rem;">
+                        <span style="color: #ffffff;"><i class="fa-solid fa-user"></i> Tekijä: ${projekti.tekija || 'Ei merkitty'}</span>
+                        <span style="color: #ffffff;"><i class="fa-solid fa-euro-sign"></i> Toteutunut: ${projekti.kustannus} €</span>
                     </div>
                 </div>
-                <div class="nuoli"><i class="fa-solid fa-chevron-right"></i></div>
             `;
             listaElementti.appendChild(kortti);
         });
     };
 
-    // Käynnistetään haku lennosta
     haeValmiitProjektit();
 </script>
-
-<style>
-    .sivu-säiliö {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px 0;
-    }
-    h2 {
-        font-size: 2rem;
-        margin-bottom: 8px;
-    }
-    .lista-ruudukko {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-top: 20px;
-    }
-    /* Tehdään listoista nättejä klikattavia rivejä tummalla teksillä */
-    .projekti-rivi {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        text-decoration: none;
-        color: #333;
-        padding: 20px;
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .projekti-rivi:hover {
-        transform: translateX(5px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        border-color: #10b981;
-    }
-    .projekti-info h3 {
-        margin: 0 0 6px 0;
-        font-size: 1.25rem;
-        color: #1a1a1a;
-    }
-    .kuvaus-teksti {
-        font-size: 0.95rem;
-        color: #666;
-        margin: 0 0 12px 0;
-    }
-    .metatiedot {
-        display: flex;
-        gap: 16px;
-        font-size: 0.85rem;
-        color: #888;
-    }
-    .nuoli {
-        color: #ccc;
-        font-size: 1.2rem;
-    }
-    .paluu-linkki {
-        display: inline-block;
-        color: #333;
-        text-decoration: none;
-        font-weight: 600;
-        padding: 8px 16px;
-        background: #f0f0f0;
-        border-radius: 6px;
-    }
-    .paluu-linkki:hover { background: #e0e0e0; }
-</style>
