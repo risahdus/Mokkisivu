@@ -89,61 +89,80 @@ import MainLayout from '../../layouts/MainLayout.astro';
 
 <style>
     .sivu-säiliö {
-        max-width: 800px;
+        max-width: 750px;
         margin: 0 auto;
         padding: 20px 0;
     }
     h2 {
-        font-size: 2rem;
-        margin-bottom: 8px;
+        font-size: 1.8rem;
+        margin-bottom: 6px;
+        color: #111827;
+    }
+    p {
+        color: #4b5563;
+        margin: 0 0 20px 0;
     }
     .lista-ruudukko {
         display: flex;
         flex-direction: column;
         gap: 16px;
-        margin-top: 20px;
+        margin-top: 24px;
     }
     
-    .projekti-rivi {
+    /* PÄÄKORTTI (Linkki) */
+    .projekti-kortti {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        text-decoration: none;
-        color: #333;
-        padding: 20px;
+        text-decoration: none; /* POISTAA ALLEIVIIVAUKSEN */
+        color: inherit;
         background: #ffffff;
-        border: 1px solid #e0e0e0;
-        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .projekti-rivi:hover {
-        transform: translateX(5px);
+    .projekti-kortti:hover {
+        transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        border-color: #f59e0b;
+        border-color: #cbd5e1;
     }
     
-    .otsikko-rivi-pieni {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 6px;
-    }
-    .otsikko-rivi-pieni h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        color: #1a1a1a;
+    .kortti-runko {
+        flex: 1;
     }
 
+    /* YLÄRIVI: Otsikko ja Status */
+    .kortti-yla {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 10px;
+    }
+    .projekti-otsikko {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.3;
+    }
+
+    /* STATUS-TAGIT */
     .status-tagi {
         font-size: 0.75rem;
         font-weight: 700;
-        padding: 4px 8px;
-        border-radius: 4px;
+        padding: 4px 10px;
+        border-radius: 20px;
         text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
     }
     .tagi-avoin {
         background: #fef3c7;
-        color: #d97706;
-        border: 1px solid #fcd34d;
+        color: #b45309;
+        border: 1px solid #fde68a;
     }
     .tagi-kesken {
         background: #e0f2fe;
@@ -151,51 +170,83 @@ import MainLayout from '../../layouts/MainLayout.astro';
         border: 1px solid #bae6fd;
     }
 
+    /* KUVAUSTEKSTI */
     .kuvaus-teksti {
-        font-size: 0.95rem;
-        color: #666;
-        margin: 0 0 12px 0;
+        font-size: 1rem;
+        color: #4b5563;
+        margin: 0 0 14px 0;
+        line-height: 1.5;
     }
 
-    /* Uusi tyyli tarvikelaatikolle */
+    /* TARVIKELAATIKKO */
     .tarvike-laatikko {
-        background: #f9fafb;
-        border-left: 3px solid #d1d5db;
-        padding: 10px 14px;
-        margin-bottom: 14px;
-        border-radius: 0 6px 6px 0;
-        font-size: 0.9rem;
+        background: #f8fafc;
+        border-left: 4px solid #94a3b8;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        border-radius: 0 8px 8px 0;
     }
-    .tarvike-laatikko strong {
-        color: #4b5563;
+    .tarvike-otsikko {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #64748b;
         display: block;
         margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
-    .tarvike-laatikko p {
+    .tarvike-sisalto {
         margin: 0;
-        color: #374151;
-        white-space: pre-line; /* Säilyttää rivivaihdot jos listassa on monta tarviketta */
+        color: #334155;
+        font-size: 0.95rem;
+        white-space: pre-line;
     }
 
-    .metatiedot {
+    /* ALARIVI: Meta-tiedot */
+    .kortti-ala {
         display: flex;
-        gap: 16px;
+        gap: 20px;
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+    }
+    .meta-tieto {
         font-size: 0.85rem;
-        color: #888;
+        color: #6b7280;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
-    .nuoli {
-        color: #ccc;
-        font-size: 1.2rem;
-        padding-left: 10px;
+    .meta-tieto i {
+        color: #9ca3af;
     }
+    .hinta-tagi {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    /* NUOLI OIKEALLA */
+    .kortti-nuoli {
+        color: #9ca3af;
+        font-size: 1.1rem;
+        padding-left: 20px;
+        transition: transform 0.2s;
+    }
+    .projekti-kortti:hover .kortti-nuoli {
+        transform: translateX(3px);
+        color: #6b7280;
+    }
+
+    /* PALUULINKKI */
     .paluu-linkki {
         display: inline-block;
-        color: #333;
+        color: #374151;
         text-decoration: none;
         font-weight: 600;
-        padding: 8px 16px;
-        background: #f0f0f0;
-        border-radius: 6px;
+        padding: 10px 20px;
+        background: #f3f4f6;
+        border-radius: 8px;
+        transition: background 0.2s;
     }
-    .paluu-linkki:hover { background: #e0e0e0; }
+    .paluu-linkki:hover { background: #e5e7eb; }
+    .keskitys { text-align: center; padding: 40px; color: #6b7280; }
 </style>
