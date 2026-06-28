@@ -5,12 +5,13 @@ import MainLayout from '../../layouts/MainLayout.astro';
 <MainLayout title="Avoimet & Kesken olevat työt">
     <div class="sivu-säiliö">
         <h2><i class="fa-solid fa-hourglass-half" style="color: #f59e0b;"></i> Avoimet & Kesken olevat työt</h2>
-        <p>Tältä sivulta löydät kaikki mökin odottavat remontit ja käynnissä olevat urakat.</p>
+        <p class="sivun-kuvaus">Tältä sivulta löydät kaikki mökin odottavat remontit ja käynnissä olevat urakat.</p>
 
+        <!-- Lataus-indikaattori ja lista -->
         <div id="lataus" class="keskitys">Ladataan projekteja...</div>
-        <div id="projekti-lista" class="lista-ruudukko"></div>
+        <div id="projekti-lista" class="lista-virta"></div>
 
-        <div style="margin-top: 30px;">
+        <div style="margin-top: 35px;">
             <a href="/works" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon</a>
         </div>
     </div>
@@ -23,62 +24,67 @@ import MainLayout from '../../layouts/MainLayout.astro';
     const latausElementti = document.getElementById('lataus');
 
     const haeAvoimetProjektit = async () => {
+        if (!listaElementti) return;
+
         const { data: projektit, error } = await supabase
             .from('projektit')
             .select('*')
             .neq('status', 'valmis')
             .order('luotu_at', { ascending: false });
 
-        latausElementti.style.display = 'none';
+        if (latausElementti) latausElementti.style.display = 'none';
 
         if (error) {
-            listaElementti.innerHTML = `<p style="color: red;">Virhe haettaessa tietoja: ${error.message}</p>`;
+            listaElementti.innerHTML = `<p style="color: red; text-align: center;">Virhe haettaessa tietoja: ${error.message}</p>`;
             return;
         }
 
         if (!projektit || projektit.length === 0) {
-            listaElementti.innerHTML = '<p>Ei avoimia projekteja! Kaikki työt tehty tai listat tyhjänä. 🥂</p>';
+            listaElementti.innerHTML = '<p class="keskitys">Ei avoimia projekteja! Kaikki työt tehty tai listat tyhjänä. 🥂</p>';
             return;
         }
+
+        // Tyhjennetään lista varmuuden vuoksi
+        listaElementti.innerHTML = '';
 
         projektit.forEach(projekti => {
             const kortti = document.createElement('a');
             kortti.href = `/projects/${projekti.id}`;
-            // Käytetään näitä sinun alkuperäisiä luokkiasi, jotta kortti pysyy tallessa!
-            kortti.className = 'laatikko laatikko-kuvalla siisti-projekti'; 
+            kortti.className = 'remontti-kortti'; // Käytetään täysin uutta, puhdasta luokkaa
             
-            // Jos sinulla oli jokin tietty taustakuva projektikorteille, voit laittaa sen tähän.
-            // Esimerkiksi: kortti.style.backgroundImage = "url('/tools.jpg')";
-
             const onKesken = projekti.status === 'kesken';
             const statusTeksti = onKesken ? 'Kesken' : 'Avoin';
             const statusLuokka = onKesken ? 'tagi-kesken' : 'tagi-avoin';
 
+            // Rakennetaan tarvike-osio vain jos tarvikkeita on syötetty
             let tarvikkeetHtml = '';
             if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
                 tarvikkeetHtml = `
-                    <div class="tarvike-osio">
-                        <strong>Tarvikkeet:</strong>
-                        <p class="tarvike-teksti">${projekti.tarvikkeet}</p>
+                    <div class="tarvike-laatikko">
+                        <strong class="tarvike-otsikko"><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet:</strong>
+                        <p class="tarvike-sisalto">${projekti.tarvikkeet}</p>
                     </div>
                 `;
             }
 
             kortti.innerHTML = `
-                <div class="kortti-sisalto-uusi">
+                <div class="kortti-runko">
                     <div class="otsikko-rivi">
-                        <h2>${projekti.nimi}</h2>
-                        <span class="status-pilleri ${statusLuokka}">${statusTeksti}</span>
+                        <h3>${projekti.nimi}</h3>
+                        <span class="status-tagi ${statusLuokka}">${statusTeksti}</span>
                     </div>
                     
                     <p class="kuvaus-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
                     
                     ${tarvikkeetHtml}
                     
-                    <div class="ala-rivi">
-                        <span><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
-                        <span class="hinta"><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
+                    <div class="metatiedot-rivi">
+                        <span class="meta-tieto"><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
+                        <span class="meta-tieto hinta-tagi"><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
                     </div>
+                </div>
+                <div class="kortti-nuoli">
+                    <i class="fa-solid fa-chevron-right"></i>
                 </div>
             `;
             listaElementti.appendChild(kortti);
@@ -89,44 +95,48 @@ import MainLayout from '../../layouts/MainLayout.astro';
 </script>
 
 <style>
+    /* Sivun perusrakenne */
     .sivu-säiliö {
         max-width: 750px;
         margin: 0 auto;
-        padding: 20px 0;
+        padding: 20px 15px;
     }
     h2 {
         font-size: 1.8rem;
         margin-bottom: 6px;
         color: #111827;
     }
-    p {
-        color: #4b5563;
-        margin: 0 0 20px 0;
-    }
-    .lista-ruudukko {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-top: 24px;
+    .sivun-kuvaus {
+        color: #6b7280;
+        margin: 0 0 24px 0;
+        font-size: 1rem;
     }
     
-    /* PÄÄKORTTI (Linkki) */
-    .projekti-kortti {
+    /* Lista-astia */
+    .lista-virta {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Korttien välinen rako */
+        margin-top: 20px;
+    }
+    
+    /* UUSI PUHDAS KORTTI (Valkoinen pohja, tumma teksti, ei alleviivauksia) */
+    .remontti-kortti {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        text-decoration: none; /* POISTAA ALLEIVIIVAUKSEN */
-        color: inherit;
+        text-decoration: none !important; /* Estää alleviivaukset */
+        color: #1f2937 !important; /* Tumma tekstiväri */
         background: #ffffff;
         border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 10px;
+        padding: 20px; /* Sisäiset marginaalit kuntoon */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .projekti-kortti:hover {
+    .remontti-kortti:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
         border-color: #cbd5e1;
     }
     
@@ -134,23 +144,23 @@ import MainLayout from '../../layouts/MainLayout.astro';
         flex: 1;
     }
 
-    /* YLÄRIVI: Otsikko ja Status */
-    .kortti-yla {
+    /* Otsikko + Status pilleri */
+    .otsikko-rivi {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         gap: 16px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
-    .projekti-otsikko {
+    .otsikko-rivi h3 {
         margin: 0;
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: #111827;
-        line-height: 1.3;
+        line-height: 1.4;
     }
 
-    /* STATUS-TAGIT */
+    /* Status-pillerien tyylit */
     .status-tagi {
         font-size: 0.75rem;
         font-weight: 700;
@@ -171,42 +181,42 @@ import MainLayout from '../../layouts/MainLayout.astro';
         border: 1px solid #bae6fd;
     }
 
-    /* KUVAUSTEKSTI */
+    /* Kuvausteksti */
     .kuvaus-teksti {
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #4b5563;
-        margin: 0 0 14px 0;
+        margin: 0 0 16px 0;
         line-height: 1.5;
     }
 
-    /* TARVIKELAATIKKO */
+    /* Tarvikelaatikko (Harmaa, siisti sisennys) */
     .tarvike-laatikko {
         background: #f8fafc;
-        border-left: 4px solid #94a3b8;
+        border-left: 4px solid #64748b;
         padding: 12px 16px;
         margin-bottom: 16px;
-        border-radius: 0 8px 8px 0;
+        border-radius: 0 6px 6px 0;
     }
     .tarvike-otsikko {
         font-size: 0.85rem;
         font-weight: 700;
-        color: #64748b;
+        color: #475569;
         display: block;
         margin-bottom: 4px;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
     }
     .tarvike-sisalto {
         margin: 0;
         color: #334155;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
         white-space: pre-line;
     }
 
-    /* ALARIVI: Meta-tiedot */
-    .kortti-ala {
+    /* Alarivi (Metatiedot: Tekijä ja Hinta) */
+    .metatiedot-rivi {
         display: flex;
-        gap: 20px;
+        gap: 24px;
         padding-top: 12px;
         border-top: 1px solid #f3f4f6;
     }
@@ -222,22 +232,22 @@ import MainLayout from '../../layouts/MainLayout.astro';
     }
     .hinta-tagi {
         font-weight: 600;
-        color: #374151;
+        color: #1f2937;
     }
 
-    /* NUOLI OIKEALLA */
+    /* Pieni nuoli kortin oikeassa reunassa */
     .kortti-nuoli {
         color: #9ca3af;
         font-size: 1.1rem;
         padding-left: 20px;
         transition: transform 0.2s;
     }
-    .projekti-kortti:hover .kortti-nuoli {
-        transform: translateX(3px);
-        color: #6b7280;
+    .remontti-kortti:hover .kortti-nuoli {
+        transform: translateX(4px);
+        color: #4b5563;
     }
 
-    /* PALUULINKKI */
+    /* Paluupainike sivun alareunassa */
     .paluu-linkki {
         display: inline-block;
         color: #374151;
@@ -250,89 +260,4 @@ import MainLayout from '../../layouts/MainLayout.astro';
     }
     .paluu-linkki:hover { background: #e5e7eb; }
     .keskitys { text-align: center; padding: 40px; color: #6b7280; }
-
-    /* Poistetaan alleviivaus projektikortista ja siistitään se */
-    .siisti-projekti {
-        text-decoration: none !important;
-        color: #ffffff !important; /* Jos kortissa on tumma tausta, käytä valkoista tekstiä */
-        display: block;
-        margin-bottom: 20px;
-        height: auto; /* Antaa kortin venyä tekstin mukaan */
-    }
-
-    .kortti-sisalto-uusi {
-        padding: 20px;
-        width: 100%;
-    }
-
-    .otsikko-rivi {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        padding-bottom: 8px;
-        margin-bottom: 12px;
-    }
-
-    .otsikko-rivi h2 {
-        margin: 0;
-        font-size: 1.4rem;
-        text-decoration: none !important;
-    }
-
-    /* Statuspillerit */
-    .status-pilleri {
-        font-size: 0.8rem;
-        font-weight: bold;
-        padding: 4px 10px;
-        border-radius: 12px;
-        text-transform: uppercase;
-    }
-    .tagi-avoin {
-        background: #f59e0b;
-        color: #000;
-    }
-    .tagi-kesken {
-        background: #3b82f6;
-        color: #fff;
-    }
-
-    .kuvaus-teksti {
-        margin: 0 0 14px 0;
-        font-size: 1rem;
-        opacity: 0.9;
-        line-height: 1.4;
-    }
-
-    /* Tarvikkeet */
-    .tarvike-osio {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 10px 14px;
-        border-radius: 6px;
-        margin-bottom: 14px;
-    }
-    .tarvike-osio strong {
-        font-size: 0.9rem;
-        display: block;
-        margin-bottom: 2px;
-    }
-    .tarvike-teksti {
-        margin: 0;
-        font-size: 0.95rem;
-        opacity: 0.85;
-        white-space: pre-line;
-    }
-
-    /* Alarivi tekijälle ja hinnalle */
-    .ala-rivi {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9rem;
-        opacity: 0.8;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-top: 8px;
-    }
-    .ala-rivi .hinta {
-        font-weight: bold;
-    }    
 </style>
