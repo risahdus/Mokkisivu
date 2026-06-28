@@ -120,69 +120,73 @@ import MainLayout from '../../layouts/MainLayout.astro';
     .lista-virta {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 28px; /* Hieman enemmän tilaa korttien välille */
         margin-top: 20px;
     }
     
-    /* TUODAAN SIVUSTON VIRALLINEN TUMMA KORTTITYYLI KÄYTTÖÖN */
+    /* PROJEKTIKORTIN POHJA */
     .projekti-mokin-kortti {
-        text-decoration: none !important; /* Estää alleviivauksen */
-        color: #ffffff !important; /* Pakotetaan teksti valkoiseksi tumman kuvan päälle */
-        padding: 0 !important; /* Tyhjennetään oletuspadding, jotta overlay peittää kaiken */
+        text-decoration: none !important;
+        color: #ffffff !important;
+        padding: 0 !important; /* Pidetään nollassa, jotta overlay hoitaa suojauksen reunoille asti */
         overflow: hidden;
-        height: auto !important; /* Sallitaan kortin joustaa sisällön mukaan */
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        height: auto !important;
+        border-radius: 14px; /* Pyöristetään kulmia hieman enemmän */
+        box-shadow: 0 6px 16px rgba(0,0,0,0.3); /* Syvempi varjo tuomaan korttia ulos taustasta */
         display: block;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .projekti-mokin-kortti:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.45);
     }
 
-    /* Tumma kuultava kerros kuvan päällä, joka pitää huolen tekstin luettavuudesta */
+    /* KORTIN SISÄISET MARGINAALIT JA TUMMENNUS */
     .moki-kortti-overlay {
-        background: rgba(0, 0, 0, 0.7); /* Sopivan tumma varjostus */
-        padding: 24px;
+        /* Nostettu tummuutta reilusti (0.7 -> 0.85), jotta teksti erottuu satavarmasti */
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 20, 0.85) 100%);
+        padding: 28px; /* Lisätty sisäistä marginaalia – tekstit eivät enää puku reunoille! */
         width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
+        box-sizing: border-box; /* Varmistaa että padding pysyy kortin sisällä */
     }
 
-    /* Otsikkorivi (Nimi + Status) */
+    /* Otsikkorivi */
     .moki-kortti-yla {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        padding-bottom: 12px;
-        margin-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 14px;
+        margin-bottom: 20px;
     }
     .moki-kortti-yla h2 {
         margin: 0 !important;
-        font-size: 1.4rem !important;
+        font-size: 1.5rem !important;
         font-weight: 700;
         color: #ffffff !important;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     }
 
-    /* Status-pillerit */
+    /* Statuspilleri */
     .status-pilleri {
         font-size: 0.75rem;
-        font-weight: 700;
-        padding: 4px 12px;
+        font-weight: 800;
+        padding: 5px 14px;
         border-radius: 20px;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .tagi-avoin { background: #f59e0b; color: #000000; }
     .tagi-kesken { background: #3b82f6; color: #ffffff; }
 
-    /* Väliotsikot & Tekstiosiot */
+    /* Osiot ja Väliotsikot */
     .moki-kortti-osio {
-        margin-bottom: 16px;
+        margin-bottom: 20px; /* Enemmän tilaa osioiden väliin */
     }
     .moki-vali-otsikko {
         display: flex;
@@ -190,50 +194,52 @@ import MainLayout from '../../layouts/MainLayout.astro';
         gap: 8px;
         font-size: 0.85rem;
         font-weight: 700;
-        color: #f59e0b; /* Keltainen tehosteväri väliotsikoille */
+        color: #f59e0b; /* Kirkas oranssinkeltainen otsikoille */
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 4px;
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
     }
-    .moki-vali-otsikko i { color: #f59e0b; }
     
     .moki-osion-teksti {
         margin: 0;
-        font-size: 1rem;
-        color: #eeeeee;
-        line-height: 1.5;
+        font-size: 1.05rem; /* Hieman isompi fontti luettavuuden parantamiseksi */
+        color: #f3f4f6; /* Puhtaan valkoisen sijaan hieman pehmeämpi vaalea */
+        line-height: 1.6; /* Lisää ilmaa rivien väliin */
         white-space: pre-line;
     }
     .tarvike-korostus-väri {
-        color: #67e8f9; /* Vaaleansininen korostus tarvikkeille, erottuu hienosti tummalla */
+        color: #22d3ee; /* Erittäin kirkas syaaninsininen tarvikkeille, loistaa tummalla taustalla */
     }
 
-    /* Alarivi (Meta-tiedot) */
+    /* Alarivi */
     .moki-kortti-ala {
         display: flex;
-        gap: 40px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-top: 14px;
-        margin-top: 8px;
+        gap: 50px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        padding-top: 16px;
+        margin-top: 10px;
     }
     .moki-meta-pala {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 4px;
     }
     .moki-meta-otsikko {
         font-size: 0.8rem;
         font-weight: 700;
-        color: #9ca3af;
+        color: #9ca3af; /* Harmaampi otsikko metatiedoille */
         text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
     .moki-meta-pala span {
         color: #ffffff;
-        font-size: 0.95rem;
+        font-size: 1rem;
+        font-weight: 500;
     }
     .moki-hinta {
         font-weight: 700;
-        color: #f59e0b !important;
+        color: #f59e0b !important; /* Kustannusarvion hinta keltaisella */
     }
 
     /* Paluulinkki */
