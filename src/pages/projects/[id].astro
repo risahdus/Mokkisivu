@@ -27,14 +27,15 @@ import MainLayout from '../../layouts/MainLayout.astro';
                 
                 <div id="p-tarvikkeet-lohko" style="display: none;">
                     <hr />
-                    <strong><i class="fa-solid fa-basket-shopping"></i> Tarvittavat materiaalit & Työkalut:</strong>
+                    <strong><i class="fa-solid fa-basket-shopping"></i> Tarvittavat materiaalimaksut & Työkalut:</strong>
                     <p id="p-tarvikkeet" class="tarvike-teksti">--</p>
                 </div>
-                <div id="p-kuvalinkki-lohko" style="display: none; margin-top: 20px; margin-bottom: 24px;">
+            </div>
+
+            <div id="p-kuvalinkki-lohko" style="display: none; margin-top: 20px; margin-bottom: 24px;">
                 <a id="p-kuvalinkki" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #22c55e; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); transition: transform 0.2s;">
                     <i class="fa-solid fa-images" style="font-size: 1.2rem;"></i> Katso projektin kuvat (Google Kuvat)
                 </a>
-            </div>                
             </div>
 
             <div class="laatikko tumma-lomake toimintapalkki">
@@ -45,7 +46,6 @@ import MainLayout from '../../layouts/MainLayout.astro';
                     <button id="nappi-valmis" class="nappi-vihrea">✓ Merkitse valmiiksi</button>
                     <button id="nappi-avoin" class="nappi-harmaa">Palauta avoimeksi</button>
                 </div>
-                <p id="paivitys-viesti" class="viesti" style="display: none;"></p>
             </div>
         </div>
 
@@ -58,15 +58,14 @@ import MainLayout from '../../layouts/MainLayout.astro';
 <script>
     import { supabase } from '../../lib/supabase';
 
-    // Poimitaan projektin ID suoraan selaimen osoiteriviltä (esim. /projects/5 -> "5")
+    // Osoiteriviltä poiminta
     const polkuOsat = window.location.pathname.split('/');
     const projektiId = polkuOsat[polkuOsat.length - 1];
 
     const latausEl = document.getElementById('lataus');
     const sisaltoEl = document.getElementById('projekti-sisalto');
-    const viestiEl = document.getElementById('paivitys-viesti');
 
-    // Haetaan elementit, joihin tiedot tulostetaan
+    // Tekstielementit
     const pNimi = document.getElementById('p-nimi');
     const pStatus = document.getElementById('p-status');
     const pTekija = document.getElementById('p-tekija');
@@ -75,53 +74,19 @@ import MainLayout from '../../layouts/MainLayout.astro';
     const pTarvikkeet = document.getElementById('p-tarvikkeet');
     const pTarvikkeetLohko = document.getElementById('p-tarvikkeet-lohko');
 
+    // Google kuvat elementit
+    const pKuvalinkkiLohko = document.getElementById('p-kuvalinkki-lohko');
+    const pKuvalinkki = document.getElementById('p-kuvalinkki') as HTMLAnchorElement;
+
     // Napit
     const nAvo = document.getElementById('nappi-avoin');
     const nKes = document.getElementById('nappi-kesken');
     const nVal = document.getElementById('nappi-valmis');
 
-    // Haetaan uudet elementit muuttujiin (laita nämä muiden elementtihaun sekaan yläosaan)
-    const pKuvalinkkiLohko = document.getElementById('p-kuvalinkki-lohko');
-    const pKuvalinkki = document.getElementById('p-kuvalinkki') as HTMLAnchorElement;
-
-    // 1. HAETAAN TÄMÄN PROJEKTIN TIEDOT KANNASTA
+    // HAETAAN PROJEKTIN TIEDOT KANNASTA
     const haeProjekti = async () => {
-        const { data: projekti, error } = await supabase
-            .from('projektit')
-            .select('*')
-            .eq('id', projektiId)
-            .single(); // Haetaan vain yksi rivi
+        if (!projektiId) return;
 
-        if (latausEl) latausEl.style.display = 'none';
-
-        if (error || !projekti) {
-            pNimi.innerText = "Projektia ei löytynyt";
-            if (sisaltoEl) sisaltoEl.style.display = 'block';
-            return;
-        }
-
-        // Täytetään tiedot sivuille
-        pNimi.innerText = projekti.nimi;
-        pTekija.innerText = projekti.tekija || 'Ei merkitty';
-        pKustannus.innerText = projekti.kustannus;
-        pKuvaus.innerText = projekti.kuvaus || 'Ei kuvausta.';
-        
-        // Näytetään status nätisti
-        pStatus.innerText = projekti.status;
-        pStatus.className = `status-tagi tagi-${projekti.status}`;
-
-        // Näytetään tarvikkeet jos niitä on
-        if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
-            pTarvikkeet.innerText = projekti.tarvikkeet;
-            pTarvikkeetLohko.style.display = 'block';
-        }
-
-        // Säädetään nappien näkyvyyttä nykyisen statuksen mukaan
-        nAvo.style.display = projekti.status === 'avoin' ? 'none' : 'inline-block';
-        nKes.style.display = projekti.status === 'kesken' ? 'none' : 'inline-block';
-        nVal.style.display = projekti.status === 'valmis' ? 'none' : 'inline-block';
-
-const haeProjekti = async () => {
         const { data: projekti, error } = await supabase
             .from('projektit')
             .select('*')
@@ -131,34 +96,49 @@ const haeProjekti = async () => {
         if (latausEl) latausEl.style.display = 'none';
 
         if (error || !projekti) {
-            pNimi.innerText = "Projektia ei löytynyt";
+            if (pNimi) pNimi.innerText = "Projektia ei löytynyt";
             if (sisaltoEl) sisaltoEl.style.display = 'block';
             return;
         }
 
-        // --- TÄSSÄ ON NE VANHAT TÄYTÖT (Nimi, kuvaus jne.) ---
-        pNimi.innerText = projekti.nimi;
-        pKuvaus.innerText = projekti.kuvaus || 'Ei kuvausta.';
-        // ... jne ...
+        // Täytetään perustiedot
+        if (pNimi) pNimi.innerText = projekti.nimi;
+        if (pTekija) pTekija.innerText = projekti.tekija || 'Ei merkitty';
+        if (pKustannus) pKustannus.innerText = projekti.kustannus;
+        if (pKuvaus) pKuvaus.innerText = projekti.kuvaus || 'Ei kuvausta.';
+        
+        // Statusnäkymä
+        if (pStatus) {
+            pStatus.innerText = projekti.status;
+            pStatus.className = `status-tagi tagi-${projekti.status}`;
+        }
 
+        // Näytetään tarvikkeet jos niitä on
+        if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
+            if (pTarvikkeet) pTarvikkeet.innerText = projekti.tarvikkeet;
+            if (pTarvikkeetLohko) pTarvikkeetLohko.style.display = 'block';
+        } else {
+            if (pTarvikkeetLohko) pTarvikkeetLohko.style.display = 'none';
+        }
 
-        // LISÄÄ TÄMÄ UUSI LOGIIKKA TÄHÄN VÄLIIN:
+        // Google Kuvat -linkin tarkistus ja näyttäminen
         if (projekti.kuvalinkki && projekti.kuvalinkki.trim() !== '') {
-            pKuvalinkki.href = projekti.kuvalinkki;
+            if (pKuvalinkki) pKuvalinkki.href = projekti.kuvalinkki;
             if (pKuvalinkkiLohko) pKuvalinkkiLohko.style.display = 'block';
         } else {
             if (pKuvalinkkiLohko) pKuvalinkkiLohko.style.display = 'none';
         }
 
+        // Säädetään nappien näkyvyyttä
+        if (nAvo) nAvo.style.display = projekti.status === 'avoin' ? 'none' : 'inline-block';
+        if (nKes) nKes.style.display = projekti.status === 'kesken' ? 'none' : 'inline-block';
+        if (nVal) nVal.style.display = projekti.status === 'valmis' ? 'none' : 'inline-block';
 
-        // Tämä rivi on funktion aivan lopussa, jätä se uuden koodin alapuolelle:
         if (sisaltoEl) sisaltoEl.style.display = 'block';
-    }; // <- Funktion päättävä sulku
+    };
 
-    // 2. PÄIVITETÄÄN PROJEKTIN STATUS
+    // PÄIVITETÄÄN PROJEKTIN STATUS
     const paivitaStatus = async (uusiStatus: string) => {
-        if (viestiEl) viestiEl.style.display = 'none';
-
         const { error } = await supabase
             .from('projektit')
             .update({ status: uusiStatus })
@@ -167,27 +147,17 @@ const haeProjekti = async () => {
         if (error) {
             alert("Virhe päivityksessä: " + error.message);
         } else {
-            // Ladataan sivu uudestaan lennosta, jotta uusi tila päivittyy ruudulle
             haeProjekti();
         }
     };
 
-    // Kytketään nappeihin kuuntelijat
-    nAvo.addEventListener('click', () => paivitaStatus('avoin'));
-    nKes.addEventListener('click', () => paivitaStatus('kesken'));
-    nVal.addEventListener('click', () => paivitaStatus('valmis'));
+    // Kytketään nappeihin kuuntelijat suojatusti
+    if (nAvo) nAvo.addEventListener('click', () => paivitaStatus('avoin'));
+    if (nKes) nKes.addEventListener('click', () => paivitaStatus('kesken'));
+    if (nVal) nVal.addEventListener('click', () => paivitaStatus('valmis'));
 
-    // Käynnistetään haku lennosta
+    // Aloitetaan haku
     haeProjekti();
-
-
-    // ... ja siellä haeProjekti-funktion sisällä (täytetään tiedot):
-    if (projekti.kuvalinkki && projekti.kuvalinkki.trim() !== '') {
-        pKuvalinkki.href = projekti.kuvalinkki;
-        pKuvalinkkiLohko.style.display = 'block'; // Tuodaan painike näkyviin!
-    } else {
-        pKuvalinkkiLohko.style.display = 'none'; // Pidetään piilossa jos tyhjä
-    }    
 </script>
 
 <style>
@@ -238,4 +208,5 @@ const haeProjekti = async () => {
 
     .paluu-linkki { display: inline-block; color: #333; text-decoration: none; font-weight: 600; padding: 8px 16px; background: #f0f0f0; border-radius: 6px; }
     .paluu-linkki:hover { background: #e0e0e0; }
+    .keskitys { text-align: center; padding: 40px; color: #6b7280; }
 </style>
