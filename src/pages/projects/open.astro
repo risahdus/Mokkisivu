@@ -54,11 +54,9 @@ import MainLayout from '../../layouts/MainLayout.astro';
             const kortti = document.createElement('a');
             kortti.href = `/projects/${projekti.id}`;
             
-            // PALAUTETTU: Sivustosi viralliset, toimivat korttiluokat!
             kortti.className = 'laatikko laatikko-kuvalla'; 
             kortti.style.backgroundImage = "url('/tools.jpg')"; 
             
-            // Pakotetaan kortille reilu sisäinen marginaali (padding), pyöristetyt nurkat ja musta kuultava tausta tekstin alle
             kortti.style.padding = '30px';
             kortti.style.borderRadius = '12px';
             kortti.style.textDecoration = 'none';
@@ -67,23 +65,22 @@ import MainLayout from '../../layouts/MainLayout.astro';
             kortti.style.backgroundSize = 'cover';
             kortti.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
             
-            // Tehdään tekstien taustasta tasaisen musta, jotta valkoinen teksti erottuu satavarmasti
             kortti.style.backgroundBlendMode = 'overlay';
             kortti.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
 
             const tilateksti = projekti.status === 'kesken' ? 'KESKEN' : 'AVOIN';
 
-            // Rakennetaan tarvikkeet vain jos niitä on
+            // Rakennetaan tarvikkeet (Lisätty ostoskassi-ikoni tekstin eteen)
             let tarvikkeetOsa = '';
             if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
                 tarvikkeetOsa = `
                     <br />
-                    <strong style="color: #ffffff;">Tarvikkeet:</strong><br />
+                    <strong style="color: #ffffff;"><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet:</strong><br />
                     <span style="color: #ffffff; opacity: 0.9;">${projekti.tarvikkeet}</span><br />
                 `;
             }
 
-            // KAIKKI TEKSTI VALKOISEKSI (style="color: #ffffff;")
+            // Kortin sisältö (Lisätty dokumentti-ikoni Kuvaus-tekstin eteen)
             kortti.innerHTML = `
                 <div style="color: #ffffff !important; text-decoration: none !important;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px; margin-bottom: 15px;">
@@ -91,7 +88,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
                         <strong style="color: #ffffff; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">${tilateksti}</strong>
                     </div>
                     
-                    <strong style="color: #ffffff;">Kuvaus:</strong><br />
+                    <strong style="color: #ffffff;"><i class="fa-solid fa-file-lines"></i> Kuvaus:</strong><br />
                     <span style="color: #ffffff; opacity: 0.9;">${projekti.kuvaus || 'Ei kuvausta.'}</span><br />
                     
                     ${tarvikkeetOsa}
