@@ -41,6 +41,14 @@ import MainLayout from '../../layouts/MainLayout.astro';
                     <input type="number" id="kustannus" min="0" value="0" />
                 </div>
             </div>
+            <div class="lomake-ryhma">
+                <label for="status">Projektin tila / Status</label>
+                <select id="status">
+                    <option value="avoin">Avoin (Odottaa aloittamista)</option>
+                    <option value="kesken">Kesken (Aloitettu/Työn alla)</option>
+                    <option value="valmis">Valmis (Urakka ohi ja arkistoitu)</option>
+                </select>
+            </div>            
 
             <div class="lomake-ryhma">
                 <label for="tarvikkeet">Tarvittavat materiaalit & Työkalut</label>
@@ -117,10 +125,20 @@ import MainLayout from '../../layouts/MainLayout.astro';
         const tekija = (document.getElementById('tekija') as HTMLInputElement).value;
         const kustannus = parseFloat((document.getElementById('kustannus') as HTMLInputElement).value) || 0;
         const tarvikkeet = (document.getElementById('tarvikkeet') as HTMLTextAreaElement).value;
+        const status = (document.getElementById('status') as HTMLSelectElement).value;
 
         const { error } = await supabase
             .from('projektit')
-            .insert([{ nimi, kuvaus, tekija, kustannus, tarvikkeet, status: 'avoin' }]);
+            .insert([
+                { 
+                    nimi, 
+                    kuvaus, 
+                    tekija, 
+                    kustannus, 
+                    tarvikkeet, 
+                    status // Käytetään valittua statusta 'avoin' sijaan
+                }
+            ]);
 
         if (error) {
             viestiElementti.innerText = "Virhe tallennuksessa: " + error.message;
@@ -163,6 +181,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
     .lomake-rivi { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     label { font-size: 0.9rem; font-weight: 600; color: #ccc; }
     input, textarea { padding: 12px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #ffffff; font-size: 1rem; }
+    input, textarea, select { padding: 12px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #ffffff; font-size: 1rem; }
     input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
 
     button {

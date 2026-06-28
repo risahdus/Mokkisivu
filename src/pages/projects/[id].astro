@@ -1,0 +1,192 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Projektin tiedot">
+    <div class="sivu-säiliö">
+        <div id="lataus" class="keskitys">Ladataan projektin tietoja...</div>
+        
+        <div id="projekti-sisalto" style="display: none;">
+            <div class="otsikkopalkki">
+                <h2 id="p-nimi">Projektin nimi</h2>
+                <span id="p-status" class="status-tagi">Tila</span>
+            </div>
+
+            <div class="laatikko tiedot-loota">
+                <div class="tietorivi">
+                    <strong><i class="fa-solid fa-user"></i> Tekijä / Vastuuhenkilö:</strong>
+                    <span id="p-tekija">--</span>
+                </div>
+                <div class="tietorivi">
+                    <strong><i class="fa-solid fa-euro-sign"></i> Kustannukset:</strong>
+                    <span id="p-kustannus">--</span> €
+                </div>
+                <hr />
+                <strong><i class="fa-solid fa-file-lines"></i> Kuvaus / Ohjeet:</strong>
+                <p id="p-kuvaus" class="leipateksti">--</p>
+                
+                <div id="p-tarvikkeet-lohko" style="display: none;">
+                    <hr />
+                    <strong><i class="fa-solid fa-basket-shopping"></i> Tarvittavat materiaalit & Työkalut:</strong>
+                    <p id="p-tarvikkeet" class="tarvike-teksti">--</p>
+                </div>
+            </div>
+
+            <div class="laatikko tumma-lomake toimintapalkki">
+                <h3><i class="fa-solid fa-sliders"></i> Hallitse projektia</h3>
+                <p>Muuta projektin tilaa tai merkitse se tehdyksi.</p>
+                <div class="nappi-ryhma">
+                    <button id="nappi-kesken" class="nappi-keltainen">Muuta tilaksi: Kesken</button>
+                    <button id="nappi-valmis" class="nappi-vihrea">✓ Merkitse valmiiksi</button>
+                    <button id="nappi-avoin" class="nappi-harmaa">Palauta avoimeksi</button>
+                </div>
+                <p id="paivitys-viesti" class="viesti" style="display: none;"></p>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="/works" class="paluu-linkki"><i class="fa-solid fa-arrow-left"></i> Takaisin valikkoon</a>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    import { supabase } from '../../lib/supabase';
+
+    // Poimitaan projektin ID suoraan selaimen osoiteriviltä (esim. /projects/5 -> "5")
+    const polkuOsat = window.location.pathname.split('/');
+    const projektiId = polkuOsat[polkuOsat.length - 1];
+
+    const latausEl = document.getElementById('lataus');
+    const sisaltoEl = document.getElementById('projekti-sisalto');
+    const viestiEl = document.getElementById('paivitys-viesti');
+
+    // Haetaan elementit, joihin tiedot tulostetaan
+    const pNimi = document.getElementById('p-nimi');
+    const pStatus = document.getElementById('p-status');
+    const pTekija = document.getElementById('p-tekija');
+    const pKustannus = document.getElementById('p-kustannus');
+    const pKuvaus = document.getElementById('p-kuvaus');
+    const pTarvikkeet = document.getElementById('p-tarvikkeet');
+    const pTarvikkeetLohko = document.getElementById('p-tarvikkeet-lohko');
+
+    // Napit
+    const nAvo = document.getElementById('nappi-avoin');
+    const nKes = document.getElementById('nappi-kesken');
+    const nVal = document.getElementById('nappi-valmis');
+
+    // 1. HAETAAN TÄMÄN PROJEKTIN TIEDOT KANNASTA
+    const haeProjekti = async () => {
+        const { data: projekti, error } = await supabase
+            .from('projektit')
+            .select('*')
+            .eq('id', projektiId)
+            .single(); // Haetaan vain yksi rivi
+
+        if (latausEl) latausEl.style.display = 'none';
+
+        if (error || !projekti) {
+            pNimi.innerText = "Projektia ei löytynyt";
+            if (sisaltoEl) sisaltoEl.style.display = 'block';
+            return;
+        }
+
+        // Täytetään tiedot sivuille
+        pNimi.innerText = projekti.nimi;
+        pTekija.innerText = projekti.tekija || 'Ei merkitty';
+        pKustannus.innerText = projekti.kustannus;
+        pKuvaus.innerText = projekti.kuvaus || 'Ei kuvausta.';
+        
+        // Näytetään status nätisti
+        pStatus.innerText = projekti.status;
+        pStatus.className = `status-tagi tagi-${projekti.status}`;
+
+        // Näytetään tarvikkeet jos niitä on
+        if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
+            pTarvikkeet.innerText = projekti.tarvikkeet;
+            pTarvikkeetLohko.style.display = 'block';
+        }
+
+        // Säädetään nappien näkyvyyttä nykyisen statuksen mukaan
+        nAvo.style.display = projekti.status === 'avoin' ? 'none' : 'inline-block';
+        nKes.style.display = projekti.status === 'kesken' ? 'none' : 'inline-block';
+        nVal.style.display = projekti.status === 'valmis' ? 'none' : 'inline-block';
+
+        if (sisaltoEl) sisaltoEl.style.display = 'block';
+    };
+
+    // 2. PÄIVITETÄÄN PROJEKTIN STATUS
+    const paivitaStatus = async (uusiStatus: string) => {
+        if (viestiEl) viestiEl.style.display = 'none';
+
+        const { error } = await supabase
+            .from('projektit')
+            .update({ status: uusiStatus })
+            .eq('id', projektiId);
+
+        if (error) {
+            alert("Virhe päivityksessä: " + error.message);
+        } else {
+            // Ladataan sivu uudestaan lennosta, jotta uusi tila päivittyy ruudulle
+            haeProjekti();
+        }
+    };
+
+    // Kytketään nappeihin kuuntelijat
+    nAvo.addEventListener('click', () => paivitaStatus('avoin'));
+    nKes.addEventListener('click', () => paivitaStatus('kesken'));
+    nVal.addEventListener('click', () => paivitaStatus('valmis'));
+
+    // Käynnistetään haku lennosta
+    haeProjekti();
+</script>
+
+<style>
+    .sivu-säiliö { max-width: 700px; margin: 0 auto; padding: 20px 0; }
+    
+    .otsikkopalkki {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 12px;
+    }
+    .otsikkopalkki h2 { margin: 0; font-size: 1.8rem; color: #1a1a1a; }
+
+    .tiedot-loota {
+        background: white;
+        padding: 24px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 24px;
+    }
+    .tietorivi { margin-bottom: 10px; font-size: 1.05rem; }
+    hr { border: 0; height: 1px; background: #eee; margin: 16px 0; }
+    .leipateksti { color: #333; line-height: 1.5; white-space: pre-line; margin-top: 6px; }
+    .tarvike-teksti { color: #0369a1; background: #f0f9ff; padding: 12px; border-radius: 6px; border-left: 4px solid #0284c7; margin-top: 6px; white-space: pre-line; }
+
+    /* Toimintapalkki */
+    .tumma-lomake { background: #1a1a1a; color: #ffffff; padding: 24px; border-radius: 12px; }
+    .tumma-lomake h3 { margin: 0 0 4px 0; color: #fff; }
+    .tumma-lomake p { margin: 0 0 16px 0; color: #aaa; font-size: 0.9rem; }
+    
+    .nappi-ryhma { display: flex; gap: 12px; flex-wrap: wrap; }
+    .nappi-ryhma button { width: auto; flex: 1; min-width: 150px; padding: 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; color: white; transition: background 0.2s; }
+    
+    .nappi-vihrea { background: #10b981; }
+    .nappi-vihrea:hover { background: #059669; }
+    .nappi-keltainen { background: #f59e0b; }
+    .nappi-keltainen:hover { background: #d97706; }
+    .nappi-harmaa { background: #4b5563; }
+    .nappi-harmaa:hover { background: #374151; }
+
+    /* Status-tagit */
+    .status-tagi { font-size: 0.85rem; font-weight: 700; padding: 6px 12px; border-radius: 4px; text-transform: uppercase; }
+    .tagi-avoin { background: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+    .tagi-kesken { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .tagi-valmis { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+
+    .paluu-linkki { display: inline-block; color: #333; text-decoration: none; font-weight: 600; padding: 8px 16px; background: #f0f0f0; border-radius: 6px; }
+    .paluu-linkki:hover { background: #e0e0e0; }
+</style>
