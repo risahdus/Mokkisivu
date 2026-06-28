@@ -30,6 +30,11 @@ import MainLayout from '../../layouts/MainLayout.astro';
                     <strong><i class="fa-solid fa-basket-shopping"></i> Tarvittavat materiaalit & Työkalut:</strong>
                     <p id="p-tarvikkeet" class="tarvike-teksti">--</p>
                 </div>
+                <div id="p-kuvalinkki-lohko" style="display: none; margin-top: 20px; margin-bottom: 24px;">
+                <a id="p-kuvalinkki" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #22c55e; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); transition: transform 0.2s;">
+                    <i class="fa-solid fa-images" style="font-size: 1.2rem;"></i> Katso projektin kuvat (Google Kuvat)
+                </a>
+            </div>                
             </div>
 
             <div class="laatikko tumma-lomake toimintapalkki">
@@ -75,6 +80,10 @@ import MainLayout from '../../layouts/MainLayout.astro';
     const nKes = document.getElementById('nappi-kesken');
     const nVal = document.getElementById('nappi-valmis');
 
+    // Haetaan uudet elementit muuttujiin (laita nämä muiden elementtihaun sekaan yläosaan)
+    const pKuvalinkkiLohko = document.getElementById('p-kuvalinkki-lohko');
+    const pKuvalinkki = document.getElementById('p-kuvalinkki') as HTMLAnchorElement;
+
     // 1. HAETAAN TÄMÄN PROJEKTIN TIEDOT KANNASTA
     const haeProjekti = async () => {
         const { data: projekti, error } = await supabase
@@ -112,8 +121,39 @@ import MainLayout from '../../layouts/MainLayout.astro';
         nKes.style.display = projekti.status === 'kesken' ? 'none' : 'inline-block';
         nVal.style.display = projekti.status === 'valmis' ? 'none' : 'inline-block';
 
+const haeProjekti = async () => {
+        const { data: projekti, error } = await supabase
+            .from('projektit')
+            .select('*')
+            .eq('id', projektiId)
+            .single();
+
+        if (latausEl) latausEl.style.display = 'none';
+
+        if (error || !projekti) {
+            pNimi.innerText = "Projektia ei löytynyt";
+            if (sisaltoEl) sisaltoEl.style.display = 'block';
+            return;
+        }
+
+        // --- TÄSSÄ ON NE VANHAT TÄYTÖT (Nimi, kuvaus jne.) ---
+        pNimi.innerText = projekti.nimi;
+        pKuvaus.innerText = projekti.kuvaus || 'Ei kuvausta.';
+        // ... jne ...
+
+
+        // LISÄÄ TÄMÄ UUSI LOGIIKKA TÄHÄN VÄLIIN:
+        if (projekti.kuvalinkki && projekti.kuvalinkki.trim() !== '') {
+            pKuvalinkki.href = projekti.kuvalinkki;
+            if (pKuvalinkkiLohko) pKuvalinkkiLohko.style.display = 'block';
+        } else {
+            if (pKuvalinkkiLohko) pKuvalinkkiLohko.style.display = 'none';
+        }
+
+
+        // Tämä rivi on funktion aivan lopussa, jätä se uuden koodin alapuolelle:
         if (sisaltoEl) sisaltoEl.style.display = 'block';
-    };
+    }; // <- Funktion päättävä sulku
 
     // 2. PÄIVITETÄÄN PROJEKTIN STATUS
     const paivitaStatus = async (uusiStatus: string) => {
@@ -139,6 +179,15 @@ import MainLayout from '../../layouts/MainLayout.astro';
 
     // Käynnistetään haku lennosta
     haeProjekti();
+
+
+    // ... ja siellä haeProjekti-funktion sisällä (täytetään tiedot):
+    if (projekti.kuvalinkki && projekti.kuvalinkki.trim() !== '') {
+        pKuvalinkki.href = projekti.kuvalinkki;
+        pKuvalinkkiLohko.style.display = 'block'; // Tuodaan painike näkyviin!
+    } else {
+        pKuvalinkkiLohko.style.display = 'none'; // Pidetään piilossa jos tyhjä
+    }    
 </script>
 
 <style>
