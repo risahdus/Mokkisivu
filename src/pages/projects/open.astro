@@ -55,8 +55,25 @@ import MainLayout from '../../layouts/MainLayout.astro';
             kortti.href = `/projects/${projekti.id}`;
             
             kortti.className = 'laatikko laatikko-kuvalla'; 
-            kortti.style.backgroundImage = "url('/tools.jpg')"; 
-            
+            // kortti.style.backgroundImage = "url('/tools.jpg')"; 
+            // 1. MÄÄRITETÄÄN OLETUSKUVA
+            let taustakuva = '/tools.jpg'; 
+            const projektinNimi = projekti.nimi.toLowerCase();
+
+            // 2. VALITAAN KUVA PROJEKTIN NIMEN PERUSTEELLA
+            if (projektinNimi.includes('maalaus') || projektinNimi.includes('maalaa')) {
+                taustakuva = '/painting.jpg'; // Muista lisätä painting.jpg public-kansioon
+            } else if (projektinNimi.includes('laituri') || projektinNimi.includes('ranta')) {
+                taustakuva = '/pier.jpg';     // Muista lisätä pier.jpg public-kansioon
+            } else if (projektinNimi.includes('puu') || projektinNimi.includes('halko') || projektinNimi.includes('metsä')) {
+                taustakuva = '/wood.jpg';     // Muista lisätä wood.jpg public-kansioon
+            } else if (projektinNimi.includes('sauna')) {
+                taustakuva = '/sauna.jpg';    // Muista lisätä sauna.jpg public-kansioon
+            }
+
+            // 3. ASETETAAN VALITTU KUVA KORTILLE
+            kortti.style.backgroundImage = `url('${taustakuva}')`;
+
             kortti.style.padding = '30px';
             kortti.style.borderRadius = '12px';
             kortti.style.textDecoration = 'none';
