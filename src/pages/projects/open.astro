@@ -44,39 +44,41 @@ import MainLayout from '../../layouts/MainLayout.astro';
         projektit.forEach(projekti => {
             const kortti = document.createElement('a');
             kortti.href = `/projects/${projekti.id}`;
-            kortti.className = 'laatikko projekti-rivi';
+            kortti.className = 'projekti-kortti'; // Muutettu luokkanimi selkeyden vuoksi
             
             const onKesken = projekti.status === 'kesken';
             const statusTeksti = onKesken ? 'Kesken' : 'Avoin';
             const statusLuokka = onKesken ? 'tagi-kesken' : 'tagi-avoin';
 
-            // Rakennetaan tarvike-osio vain jos tarvikkeita on syötetty
             let tarvikkeetHtml = '';
             if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
                 tarvikkeetHtml = `
                     <div class="tarvike-laatikko">
-                        <strong><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet:</strong>
-                        <p>${projekti.tarvikkeet}</p>
+                        <span class="tarvike-otsikko"><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet:</span>
+                        <p class="tarvike-sisalto">${projekti.tarvikkeet}</p>
                     </div>
                 `;
             }
 
             kortti.innerHTML = `
-                <div class="projekti-info" style="width: 100%;">
-                    <div class="otsikko-rivi-pieni">
-                        <h3>${projekti.nimi}</h3>
+                <div class="kortti-runko">
+                    <div class="kortti-yla">
+                        <h3 class="projekti-otsikko">${projekti.nimi}</h3>
                         <span class="status-tagi ${statusLuokka}">${statusTeksti}</span>
                     </div>
+                    
                     <p class="kuvaus-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
                     
                     ${tarvikkeetHtml}
                     
-                    <div class="metatiedot">
-                        <span><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
-                        <span><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
+                    <div class="kortti-ala">
+                        <span class="meta-tieto"><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
+                        <span class="meta-tieto hinta-tagi"><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
                     </div>
                 </div>
-                <div class="nuoli"><i class="fa-solid fa-chevron-right"></i></div>
+                <div class="kortti-nuoli">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
             `;
             listaElementti.appendChild(kortti);
         });
