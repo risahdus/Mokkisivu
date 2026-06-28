@@ -68,6 +68,8 @@ import MainLayout from '../../layouts/MainLayout.astro';
                 taustakuva = '/wood.jpg';
             } else if (projektinNimi.includes('sauna')) {
                 taustakuva = '/sauna.jpg';
+            } else if (projektinNimi.includes('honka')) {
+                taustakuva = '/honka.jpg';
             }
 
             kortti.style.backgroundImage = `url('${taustakuva}')`;
