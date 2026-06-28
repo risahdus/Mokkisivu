@@ -44,8 +44,12 @@ import MainLayout from '../../layouts/MainLayout.astro';
         projektit.forEach(projekti => {
             const kortti = document.createElement('a');
             kortti.href = `/projects/${projekti.id}`;
-            kortti.className = 'projekti-kortti'; // Muutettu luokkanimi selkeyden vuoksi
+            // Käytetään näitä sinun alkuperäisiä luokkiasi, jotta kortti pysyy tallessa!
+            kortti.className = 'laatikko laatikko-kuvalla siisti-projekti'; 
             
+            // Jos sinulla oli jokin tietty taustakuva projektikorteille, voit laittaa sen tähän.
+            // Esimerkiksi: kortti.style.backgroundImage = "url('/tools.jpg')";
+
             const onKesken = projekti.status === 'kesken';
             const statusTeksti = onKesken ? 'Kesken' : 'Avoin';
             const statusLuokka = onKesken ? 'tagi-kesken' : 'tagi-avoin';
@@ -53,31 +57,28 @@ import MainLayout from '../../layouts/MainLayout.astro';
             let tarvikkeetHtml = '';
             if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
                 tarvikkeetHtml = `
-                    <div class="tarvike-laatikko">
-                        <span class="tarvike-otsikko"><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet:</span>
-                        <p class="tarvike-sisalto">${projekti.tarvikkeet}</p>
+                    <div class="tarvike-osio">
+                        <strong>Tarvikkeet:</strong>
+                        <p class="tarvike-teksti">${projekti.tarvikkeet}</p>
                     </div>
                 `;
             }
 
             kortti.innerHTML = `
-                <div class="kortti-runko">
-                    <div class="kortti-yla">
-                        <h3 class="projekti-otsikko">${projekti.nimi}</h3>
-                        <span class="status-tagi ${statusLuokka}">${statusTeksti}</span>
+                <div class="kortti-sisalto-uusi">
+                    <div class="otsikko-rivi">
+                        <h2>${projekti.nimi}</h2>
+                        <span class="status-pilleri ${statusLuokka}">${statusTeksti}</span>
                     </div>
                     
                     <p class="kuvaus-teksti">${projekti.kuvaus || 'Ei kuvausta.'}</p>
                     
                     ${tarvikkeetHtml}
                     
-                    <div class="kortti-ala">
-                        <span class="meta-tieto"><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
-                        <span class="meta-tieto hinta-tagi"><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
+                    <div class="ala-rivi">
+                        <span><i class="fa-solid fa-user"></i> ${projekti.tekija || 'Ei tekijää'}</span>
+                        <span class="hinta"><i class="fa-solid fa-euro-sign"></i> ${projekti.kustannus} €</span>
                     </div>
-                </div>
-                <div class="kortti-nuoli">
-                    <i class="fa-solid fa-chevron-right"></i>
                 </div>
             `;
             listaElementti.appendChild(kortti);
@@ -249,4 +250,89 @@ import MainLayout from '../../layouts/MainLayout.astro';
     }
     .paluu-linkki:hover { background: #e5e7eb; }
     .keskitys { text-align: center; padding: 40px; color: #6b7280; }
+
+    /* Poistetaan alleviivaus projektikortista ja siistitään se */
+    .siisti-projekti {
+        text-decoration: none !important;
+        color: #ffffff !important; /* Jos kortissa on tumma tausta, käytä valkoista tekstiä */
+        display: block;
+        margin-bottom: 20px;
+        height: auto; /* Antaa kortin venyä tekstin mukaan */
+    }
+
+    .kortti-sisalto-uusi {
+        padding: 20px;
+        width: 100%;
+    }
+
+    .otsikko-rivi {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+
+    .otsikko-rivi h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        text-decoration: none !important;
+    }
+
+    /* Statuspillerit */
+    .status-pilleri {
+        font-size: 0.8rem;
+        font-weight: bold;
+        padding: 4px 10px;
+        border-radius: 12px;
+        text-transform: uppercase;
+    }
+    .tagi-avoin {
+        background: #f59e0b;
+        color: #000;
+    }
+    .tagi-kesken {
+        background: #3b82f6;
+        color: #fff;
+    }
+
+    .kuvaus-teksti {
+        margin: 0 0 14px 0;
+        font-size: 1rem;
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+
+    /* Tarvikkeet */
+    .tarvike-osio {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 14px;
+        border-radius: 6px;
+        margin-bottom: 14px;
+    }
+    .tarvike-osio strong {
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 2px;
+    }
+    .tarvike-teksti {
+        margin: 0;
+        font-size: 0.95rem;
+        opacity: 0.85;
+        white-space: pre-line;
+    }
+
+    /* Alarivi tekijälle ja hinnalle */
+    .ala-rivi {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        opacity: 0.8;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 8px;
+    }
+    .ala-rivi .hinta {
+        font-weight: bold;
+    }    
 </style>
