@@ -48,30 +48,29 @@ import MainLayout from '../../layouts/MainLayout.astro';
         projektit.forEach(projekti => {
             const kortti = document.createElement('a');
             kortti.href = `/projects/${projekti.id}`;
-            // PALAUTETTU: Sivustosi viralliset korttiluokat!
-            kortti.className = 'laatikko laatikko-kuvalla projekti-mokin-kortti'; 
-            // Asetetaan taustakuvaksi se sama tools.jpg kuin päävalikossakin
+            // RIISUTTU VANHAT LUOKAT: Käytetään vain tätä yhtä uutta luokkaa, jotta vanhat tyylit eivät sotke!
+            kortti.className = 'mokin-remontti-paneeli'; 
             kortti.style.backgroundImage = "url('/tools.jpg')"; 
             
             const onKesken = projekti.status === 'kesken';
             const statusTeksti = onKesken ? 'Kesken' : 'Avoin';
             const statusLuokka = onKesken ? 'tagi-kesken' : 'tagi-avoin';
 
-            // Tarvike-lohko (Näytetään vain jos on täytetty)
+            // Tarvike-lohko (Sininen väri poistettu, tilalla selkeä valkoinen)
             let tarvikkeetHtml = '';
             if (projekti.tarvikkeet && projekti.tarvikkeet.trim() !== '') {
                 tarvikkeetHtml = `
                     <div class="moki-kortti-osio">
                         <strong class="moki-vali-otsikko"><i class="fa-solid fa-basket-shopping"></i> Tarvikkeet & Materiaalit:</strong>
-                        <p class="moki-osion-teksti tarvike-korostus-väri">${projekti.tarvikkeet}</p>
+                        <p class="moki-osion-teksti">${projekti.tarvikkeet}</p>
                     </div>
                 `;
             }
 
             kortti.innerHTML = `
-                <div class="moki-kortti-overlay">
+                <div class="moki-pimeys-kerros">
                     <div class="moki-kortti-yla">
-                        <h2>${projekti.nimi}</h2>
+                        <h2 class="valkoinen-otsikko">${projekti.nimi}</h2>
                         <span class="status-pilleri ${statusLuokka}">${statusTeksti}</span>
                     </div>
                     
@@ -85,7 +84,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
                     <div class="moki-kortti-ala">
                         <div class="moki-meta-pala">
                             <strong class="moki-meta-otsikko"><i class="fa-solid fa-user"></i> Vastuuhenkilö</strong>
-                            <span>${projekti.tekija || 'Ei tekijää'}</span>
+                            <span class="valkoinen-teksti">${projekti.tekija || 'Ei tekijää'}</span>
                         </div>
                         <div class="moki-meta-pala">
                             <strong class="moki-meta-otsikko"><i class="fa-solid fa-euro-sign"></i> Kustannusarvio</strong>
@@ -120,126 +119,122 @@ import MainLayout from '../../layouts/MainLayout.astro';
     .lista-virta {
         display: flex;
         flex-direction: column;
-        gap: 28px; /* Hieman enemmän tilaa korttien välille */
+        gap: 30px; /* Selkeä, reilu rako korttien välille */
         margin-top: 20px;
     }
     
-    /* PROJEKTIKORTIN POHJA */
-    .projekti-mokin-kortti {
+    /* TÄYSIN UUSI POHJA - EI SEKOITU VANHOIHIN TYILEIHIN */
+    .mokin-remontti-paneeli {
+        display: block !important;
         text-decoration: none !important;
-        color: #ffffff !important;
-        padding: 0 !important; /* Pidetään nollassa, jotta overlay hoitaa suojauksen reunoille asti */
-        overflow: hidden;
-        height: auto !important;
-        border-radius: 14px; /* Pyöristetään kulmia hieman enemmän */
-        box-shadow: 0 6px 16px rgba(0,0,0,0.3); /* Syvempi varjo tuomaan korttia ulos taustasta */
-        display: block;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: #000000 !important; /* Musta pohja varmistukseksi */
+        background-size: cover !important;
+        background-position: center !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
+        margin-bottom: 10px;
     }
-    .projekti-mokin-kortti:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 24px rgba(0,0,0,0.45);
-    }
-
-    /* KORTIN SISÄISET MARGINAALIT JA TUMMENNUS */
-    .moki-kortti-overlay {
-        /* Nostettu tummuutta reilusti (0.7 -> 0.85), jotta teksti erottuu satavarmasti */
-        background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 20, 0.85) 100%);
-        padding: 28px; /* Lisätty sisäistä marginaalia – tekstit eivät enää puku reunoille! */
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box; /* Varmistaa että padding pysyy kortin sisällä */
+    .mokin-remontti-paneeli:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.5) !important;
     }
 
-    /* Otsikkorivi */
+    /* VAKUUTUSMAISESTI TUMMENNETTU KERROS (Peittää koko kortin) */
+    .moki-pimeys-kerros {
+        /* Taustakuva häivytetään 90% mustalla liukuvärillä, teksti EROTTUU satavarmasti */
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.92) 0%, rgba(10, 10, 10, 0.88) 100%) !important;
+        padding: 30px !important; /* Pakotetaan reilu sisäinen marginaali joka suuntaan */
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    /* Ylärivi */
     .moki-kortti-yla {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        padding-bottom: 14px;
-        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+        padding-bottom: 16px !important;
+        margin-bottom: 20px !important;
     }
-    .moki-kortti-yla h2 {
+    
+    /* OTSIVIKKO PAKOTETTU VALKOISEKSI */
+    .valkoinen-otsikko {
         margin: 0 !important;
         font-size: 1.5rem !important;
-        font-weight: 700;
-        color: #ffffff !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        font-weight: 700 !important;
+        color: #ffffff !important; /* Sataprosenttisen valkoinen */
+        text-decoration: none !important;
     }
 
     /* Statuspilleri */
     .status-pilleri {
-        font-size: 0.75rem;
-        font-weight: 800;
-        padding: 5px 14px;
-        border-radius: 20px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        white-space: nowrap;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        font-size: 0.75rem !important;
+        font-weight: 800 !important;
+        padding: 6px 14px !important;
+        border-radius: 20px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
     }
-    .tagi-avoin { background: #f59e0b; color: #000000; }
-    .tagi-kesken { background: #3b82f6; color: #ffffff; }
+    .tagi-avoin { background: #f59e0b !important; color: #000000 !important; }
+    .tagi-kesken { background: #3b82f6 !important; color: #ffffff !important; }
 
-    /* Osiot ja Väliotsikot */
+    /* Osioiden välit */
     .moki-kortti-osio {
-        margin-bottom: 20px; /* Enemmän tilaa osioiden väliin */
-    }
-    .moki-vali-otsikko {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #f59e0b; /* Kirkas oranssinkeltainen otsikoille */
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 6px;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+        margin-bottom: 20px !important;
     }
     
-    .moki-osion-teksti {
-        margin: 0;
-        font-size: 1.05rem; /* Hieman isompi fontti luettavuuden parantamiseksi */
-        color: #f3f4f6; /* Puhtaan valkoisen sijaan hieman pehmeämpi vaalea */
-        line-height: 1.6; /* Lisää ilmaa rivien väliin */
-        white-space: pre-line;
+    /* VÄLIOTSIKOT */
+    .moki-vali-otsikko {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #f59e0b !important; /* Selkeä keltainen oranssi otsikoille */
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        margin-bottom: 6px !important;
     }
-    .tarvike-korostus-väri {
-        color: #22d3ee; /* Erittäin kirkas syaaninsininen tarvikkeille, loistaa tummalla taustalla */
+    
+    /* LEIPÄTEKSTIT (Kuvaus ja tarvikkeet) */
+    .moki-osion-teksti {
+        margin: 0 !important;
+        font-size: 1.05rem !important;
+        color: #ffffff !important; /* Pakotettu puhtaan valkoiseksi, ei sinistä! */
+        line-height: 1.6 !important;
+        white-space: pre-line !important;
     }
 
     /* Alarivi */
     .moki-kortti-ala {
-        display: flex;
-        gap: 50px;
-        border-top: 1px solid rgba(255, 255, 255, 0.15);
-        padding-top: 16px;
-        margin-top: 10px;
+        display: flex !important;
+        gap: 60px !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        padding-top: 16px !important;
+        margin-top: 12px !important;
     }
     .moki-meta-pala {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
     }
     .moki-meta-otsikko {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #9ca3af; /* Harmaampi otsikko metatiedoille */
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        font-size: 0.8rem !important;
+        font-weight: 700 !important;
+        color: #9ca3af !important;
+        text-transform: uppercase !important;
     }
-    .moki-meta-pala span {
-        color: #ffffff;
-        font-size: 1rem;
-        font-weight: 500;
+    .valkoinen-teksti {
+        color: #ffffff !important;
+        font-size: 1rem !important;
     }
     .moki-hinta {
-        font-weight: 700;
-        color: #f59e0b !important; /* Kustannusarvion hinta keltaisella */
+        font-weight: 700 !important;
+        color: #f59e0b !important; /* Hinta keltaisella korostuksella */
+        font-size: 1rem !important;
     }
 
     /* Paluulinkki */
